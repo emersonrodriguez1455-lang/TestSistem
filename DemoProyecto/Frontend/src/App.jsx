@@ -6,6 +6,7 @@ import Historial from './pages/Historial.jsx'
 import Auditoria from './pages/Auditoria.jsx'
 import RequireAuth from './routes/RequireAuth.jsx'
 import RequireAdmin from './routes/RequireAdmin.jsx'
+import NotFound from './pages/NotFound.jsx'
 
 function App() {
   return (
@@ -31,6 +32,11 @@ function App() {
           }
         />
       </Route>
+
+      {/* Fase 4: cualquier URL que no coincida con las rutas de arriba
+          muestra la pantalla de "Página no encontrada" en vez de dejar la
+          pantalla en blanco. */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
