@@ -314,7 +314,15 @@ function Historial() {
     try {
       const blob = await descargarPdfActa(token, id)
       const url = URL.createObjectURL(blob)
-      window.open(url, '_blank')
+      // Fase 2.1: antes se hacía window.open(url) -- eso abre el visor del
+      // navegador (pestaña), no dispara una descarga real. Se usa un <a>
+      // temporal con "download" para forzar la descarga del archivo.
+      const enlace = document.createElement('a')
+      enlace.href = url
+      enlace.download = `acta-devolucion-${id}.pdf`
+      document.body.appendChild(enlace)
+      enlace.click()
+      document.body.removeChild(enlace)
       setTimeout(() => URL.revokeObjectURL(url), 60000)
     } catch (err) {
       setError(err.message || 'No se pudo generar el PDF')
@@ -417,7 +425,10 @@ function Historial() {
                       {r.fecha ? new Date(r.fecha).toLocaleDateString('es-GT') : '-'}
                     </td>
                     <td className="py-4 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {/* Fase 5: antes solo aparecían con hover (group-hover),
+                          invisibles en móvil por no haber mouse. Ahora quedan
+                          siempre visibles en cualquier dispositivo. */}
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleDescargarPdf(r.id)}
                           disabled={descargandoId === r.id}
