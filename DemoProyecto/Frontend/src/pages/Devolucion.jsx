@@ -39,7 +39,10 @@ function Devolucion() {
   const [responsable, setResponsable] = useState('')
   const [departamento, setDepartamento] = useState('')
   const [puesto, setPuesto] = useState('')
-  const [dpi, setDpi] = useState('')
+  // DPI: solo se usa dentro de la frase de constancia cuando el acta es de
+  // "1 página" (ver formato físico) -- ya no es un input aparte en "Datos
+  // del Usuario".
+  const [dpi, setDpi] = useState('(clic para escribir su DPI)')
   const [planta, setPlanta] = useState('Tejar')
 
   const [modalidadPaginas, setModalidadPaginas] = useState('dos') // 'una' | 'dos'
@@ -161,6 +164,14 @@ function Devolucion() {
     }
   }
 
+  // Vacía toda la tabla de un solo clic (sin modal de confirmación, según lo
+  // acordado). Limpia tanto las filas como los checkboxes de verificación
+  // rápida, para que ambos queden sincronizados.
+  function vaciarTablaAccesorios() {
+    setFilasAccesorios([])
+    setAccesoriosSeleccionados([])
+  }
+
   async function handleFinalizarDevolucion() {
     // Bloqueo de doble submit a nivel de función (además del botón
     // deshabilitado): si ya hay un guardado en curso, se ignora el clic.
@@ -252,7 +263,7 @@ function Devolucion() {
     setResponsable('')
     setDepartamento('')
     setPuesto('')
-    setDpi('')
+    setDpi('(clic para escribir su DPI)')
     setPlanta('Tejar')
     setModalidadPaginas('dos')
     setTipoEquipo('Laptop')
@@ -399,18 +410,6 @@ function Devolucion() {
                     type="text"
                     value={puesto}
                     onChange={(e) => setPuesto(e.target.value)}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="font-label-bold text-label-bold text-on-surface">
-                    DPI / No. Documento Personal
-                  </label>
-                  <input
-                    className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface font-mono focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
-                    placeholder="0000 00000 0000"
-                    type="text"
-                    value={dpi}
-                    onChange={(e) => setDpi(e.target.value)}
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -654,13 +653,24 @@ function Devolucion() {
                   {modalidadPaginas === 'una' ? 'Descripción de Equipo' : 'Accesorios Devueltos'}
                 </h3>
               </div>
-              <button
-                onClick={agregarFilaManual}
-                type="button"
-                className="text-secondary hover:text-primary transition-colors flex items-center gap-1 font-label-bold text-label-bold"
-              >
-                <span className="material-symbols-outlined text-sm">add_circle</span> Agregar Fila
-              </button>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={agregarFilaManual}
+                  type="button"
+                  className="text-secondary hover:text-primary transition-colors flex items-center gap-1 font-label-bold text-label-bold"
+                >
+                  <span className="material-symbols-outlined text-sm">add_circle</span> Agregar Fila
+                </button>
+                {filasAccesorios.length > 0 && (
+                  <button
+                    onClick={vaciarTablaAccesorios}
+                    type="button"
+                    className="text-outline hover:text-error transition-colors flex items-center gap-1 font-label-bold text-label-bold"
+                  >
+                    <span className="material-symbols-outlined text-sm">playlist_remove</span> Vaciar tabla
+                  </button>
+                )}
+              </div>
             </div>
             <div className="p-stack-md border-b border-outline-variant bg-surface-blue/30">
               <p className="font-label-sm text-label-sm text-on-surface-variant uppercase mb-3">
@@ -821,6 +831,17 @@ function Devolucion() {
                   className="text-primary font-bold"
                   title="Clic para editar el año"
                 />
+                {modalidadPaginas === 'una' && (
+                  <>
+                    , que me identifico con número de documento personal{' '}
+                    <InlineEditableText
+                      value={dpi}
+                      onChange={setDpi}
+                      className="text-primary font-bold"
+                      title="Clic para editar el DPI"
+                    />
+                  </>
+                )}
                 , hago constar que entrego todo el equipo descrito arriba. Yo{' '}
                 <InlineEditableText
                   value={nombreEntrega}
@@ -859,13 +880,6 @@ function Devolucion() {
                 <span className="material-symbols-outlined text-sm">lock</span>
                 Acta finalizada
               </span>
-              <button
-                type="button"
-                onClick={() => setEstadoActa('borrador')}
-                className="underline hover:no-underline"
-              >
-                Reabrir para editar
-              </button>
             </div>
           )}
           {errores.equipo && (
