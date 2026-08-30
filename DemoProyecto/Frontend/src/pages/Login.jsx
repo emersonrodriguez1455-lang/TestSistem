@@ -82,8 +82,16 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary-container text-on-primary py-2.5 rounded font-label-bold text-label-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full bg-primary-container text-on-primary py-2.5 rounded font-label-bold text-label-bold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
           >
+            {loading && (
+              <span
+                className="material-symbols-outlined text-base animate-spin"
+                aria-hidden="true"
+              >
+                progress_activity
+              </span>
+            )}
             {loading ? 'Ingresando...' : 'Iniciar Sesión'}
           </button>
 
