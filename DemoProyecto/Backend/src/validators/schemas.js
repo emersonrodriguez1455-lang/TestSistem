@@ -61,4 +61,38 @@ const editarActaSchema = z.object({
   version: z.number({ invalid_type_error: 'Falta la versión del acta que se está editando' }),
 })
 
-module.exports = { loginSchema, crearActaSchema, editarActaSchema }
+// Gestión de usuarios (panel admin) -- rol restringido a los dos valores
+// reales que usa el sistema hoy en auth.js/actasController.js.
+const rolSchema = z.enum(['admin', 'registrador'])
+
+const crearUsuarioSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(3, 'El usuario debe tener al menos 3 caracteres')
+    .max(50, 'El usuario es demasiado largo'),
+  password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
+  nombre_completo: z
+    .string()
+    .trim()
+    .min(1, 'El nombre completo es obligatorio')
+    .max(200, 'El nombre es demasiado largo'),
+  rol: rolSchema,
+})
+
+// Editar: todo opcional (edición parcial), pero cada campo presente debe
+// cumplir las mismas reglas que al crear.
+const editarUsuarioSchema = z.object({
+  nombre_completo: z.string().trim().min(1).max(200).optional(),
+  rol: rolSchema.optional(),
+  activo: z.boolean().optional(),
+  password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres').optional(),
+})
+
+module.exports = {
+  loginSchema,
+  crearActaSchema,
+  editarActaSchema,
+  crearUsuarioSchema,
+  editarUsuarioSchema,
+}
