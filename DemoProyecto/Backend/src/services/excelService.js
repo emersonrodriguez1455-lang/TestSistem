@@ -111,8 +111,8 @@ async function generarExcelAuditoria(logs = []) {
         accion: log.accion,
         acta_afectada: actaAfectada,
         campo,
-        valor_anterior: formatearValor(cambio.anterior),
-        valor_nuevo: formatearValor(cambio.nuevo),
+        valor_anterior: formatearValor(cambio.antes),
+        valor_nuevo: formatearValor(cambio.despues),
       })
     })
   })
