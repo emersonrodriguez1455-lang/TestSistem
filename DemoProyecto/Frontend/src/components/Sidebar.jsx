@@ -68,13 +68,12 @@ function Sidebar({ abierto, onCerrar }) {
         {/* Header */}
         <div className="px-stack-lg mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-primary rounded flex items-center justify-center text-on-primary">
-              <span
-                className="material-symbols-outlined"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                factory
-              </span>
+            <div className="w-10 h-10 bg-primary rounded flex items-center justify-center text-on-primary overflow-hidden">
+              <img
+                src="/logo-legumex.png"
+                alt="Legumex"
+                className="w-full h-full object-contain p-0.5"
+              />
             </div>
             <div>
               <h1 className="font-headline-md text-headline-md font-extrabold text-primary">
@@ -116,6 +115,8 @@ function Sidebar({ abierto, onCerrar }) {
             </span>
             <span className="font-label-bold text-label-bold">Cerrar Sesión</span>
           </button>
+
+          
         </div>
       </nav>
     </>
