@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Download } from 'lucide-react'
 import ConfirmModal from './ConfirmModal.jsx'
 
 /**
@@ -42,9 +43,9 @@ function BotonExcel({ onExportar, nombreArchivo = 'Exportar.xlsx', etiqueta = 'E
       <button
         type="button"
         onClick={() => setModalAbierto(true)}
-        className="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-label-bold text-label-bold"
+        className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface px-4 font-label-bold text-label-bold text-on-surface transition-colors hover:bg-surface-container-high active:brightness-95"
       >
-        <span className="material-symbols-outlined text-[18px]">file_download</span>
+        <Download className="h-4 w-4" strokeWidth={2.25} />
         {etiqueta}
       </button>
 
