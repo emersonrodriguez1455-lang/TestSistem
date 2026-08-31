@@ -4,6 +4,7 @@ import Login from './pages/Login.jsx'
 import Devolucion from './pages/Devolucion.jsx'
 import Historial from './pages/Historial.jsx'
 import Auditoria from './pages/Auditoria.jsx'
+import Usuarios from './pages/Usuarios.jsx'
 import RequireAuth from './routes/RequireAuth.jsx'
 import RequireAdmin from './routes/RequireAdmin.jsx'
 import NotFound from './pages/NotFound.jsx'
@@ -28,6 +29,14 @@ function App() {
           element={
             <RequireAdmin>
               <Auditoria />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="usuarios"
+          element={
+            <RequireAdmin>
+              <Usuarios />
             </RequireAdmin>
           }
         />
