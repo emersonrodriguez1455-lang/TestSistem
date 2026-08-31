@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 // ============================================
@@ -10,8 +12,27 @@ const app = express();
 // ============================================
 // 2️⃣ Middlewares globales
 // ============================================
+// Fase D.4: cabeceras de seguridad estándar (X-Frame-Options, HSTS, etc).
+// Se desactiva CSP por defecto -- el frontend es una app aparte (otro
+// origen), no HTML servido por este backend, así que la CSP por defecto de
+// helmet no aplica aquí y solo generaría ruido.
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
-app.use(express.json());
+// Fase D.7: límite de tamaño de payload. Las firmas van en base64 dentro
+// del JSON (una imagen chica en PNG/SVG), así que el límite se deja con
+// margen holgado en vez de un límite genérico bajo que las rompería.
+app.use(express.json({ limit: '2mb' }));
+
+// Fase D.3: límite de intentos de login por IP (además del bloqueo por
+// cuenta en authService.js). Umbral alto a propósito -- no es para frenar
+// un uso normal, es para frenar un script de fuerza bruta.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 20, // 20 intentos por IP en la ventana, entre varias cuentas
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados intentos de inicio de sesión. Espera unos minutos e intenta de nuevo.' },
+});
 
 // ============================================
 // 3️⃣ Importar dependencias (después de app)
@@ -48,6 +69,7 @@ app.get('/api/test-db', async (req, res) => {
 // 5️⃣ Rutas de la API
 // ============================================
 app.use('/api/health', healthRoutes);
+app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/actas', actasRoutes);
 app.use('/api/auditoria', auditoriaRoutes);
