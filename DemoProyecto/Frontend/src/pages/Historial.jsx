@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { X, FileText, Eye, Pencil, Trash2, PackageOpen } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import {
   listarActas,
@@ -137,24 +138,27 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="bg-surface-container-lowest w-full max-w-lg rounded-lg shadow-lg border border-outline-variant max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
-          <h3 className="font-headline-lg text-headline-lg text-primary">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-surface/40 px-4">
+      <div className="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-lg border border-outline-variant max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant sticky top-0 bg-surface-container-lowest z-10">
+          <h3 className="font-headline-lg text-headline-lg text-on-surface">
             {soloLectura ? 'Detalle del Acta' : 'Editar Acta'}
           </h3>
-          <button onClick={onClose} className="text-on-surface-variant hover:text-primary">
-            <span className="material-symbols-outlined">close</span>
+          <button
+            onClick={onClose}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
+          >
+            <X className="h-5 w-5" strokeWidth={2} />
           </button>
         </div>
 
         <form onSubmit={handleGuardar} className="px-5 py-4 flex flex-col gap-stack-md">
           {CAMPOS_EDITABLES.map((campo) => (
-            <div key={campo.key} className="flex flex-col gap-1">
+            <div key={campo.key} className="flex flex-col gap-1.5">
               <label className="font-label-bold text-label-bold text-on-surface">{campo.label}</label>
               {campo.type === 'textarea' ? (
                 <textarea
-                  className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface disabled:opacity-60"
+                  className="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-body-md text-on-surface transition-colors hover:border-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25 disabled:opacity-60 disabled:cursor-not-allowed"
                   rows={3}
                   value={datos[campo.key]}
                   disabled={soloLectura}
@@ -163,7 +167,7 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
               ) : (
                 <input
                   type={campo.type}
-                  className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface disabled:opacity-60"
+                  className="h-11 w-full bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface transition-colors hover:border-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25 disabled:opacity-60 disabled:cursor-not-allowed"
                   value={datos[campo.key]}
                   disabled={soloLectura}
                   onChange={(e) => setDatos((d) => ({ ...d, [campo.key]: e.target.value }))}
@@ -179,7 +183,10 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
                 { tipo: 'entrega', label: 'Quien Entrega', url: firmaEntregaUrl },
                 { tipo: 'recibe', label: 'Quien Recibe', url: firmaRecibeUrl },
               ].map(({ tipo, label, url }) => (
-                <div key={tipo} className="flex flex-col items-center gap-1 border border-outline-variant rounded p-2">
+                <div
+                  key={tipo}
+                  className="flex flex-col items-center gap-1.5 border border-outline-variant rounded-lg p-2.5 bg-surface-container-low"
+                >
                   {url ? (
                     <img src={url} alt={`Firma ${label}`} className="h-16 object-contain" />
                   ) : (
@@ -190,7 +197,7 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
                     <button
                       type="button"
                       onClick={() => setModalReiniciarFirma(tipo)}
-                      className="text-error font-label-sm text-label-sm underline"
+                      className="rounded-md px-2 py-1 font-label-sm text-label-sm text-on-surface-variant underline-offset-2 transition-colors hover:text-error hover:underline"
                     >
                       Reiniciar
                     </button>
@@ -201,13 +208,13 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
           </div>
 
           {!soloLectura && (
-            <div className="flex flex-col gap-1 pt-2 border-t border-outline-variant">
+            <div className="flex flex-col gap-1.5 pt-2 border-t border-outline-variant">
               <label className="font-label-bold text-label-bold text-on-surface">
                 Tu contraseña (para confirmar el cambio)
               </label>
               <input
                 type="password"
-                className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface"
+                className="h-11 w-full bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface transition-colors hover:border-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -215,7 +222,7 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
           )}
 
           {error && (
-            <p className="text-error font-label-sm text-label-sm bg-error-container/40 border border-error/30 rounded px-3 py-2">
+            <p className="text-error font-label-sm text-label-sm bg-error-container/40 border border-error/30 rounded-lg px-3 py-2">
               {error}
             </p>
           )}
@@ -224,7 +231,7 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-outline text-on-surface-variant rounded font-label-bold text-label-bold hover:bg-surface-container-low"
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-outline-variant bg-surface px-4 font-label-bold text-label-bold text-on-surface transition-colors hover:bg-surface-container-high"
             >
               Cerrar
             </button>
@@ -232,7 +239,7 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
               <button
                 type="submit"
                 disabled={guardando}
-                className="px-4 py-2 bg-primary text-on-primary rounded font-label-bold text-label-bold hover:opacity-90 disabled:opacity-60"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 font-label-bold text-label-bold text-on-primary shadow-sm transition-all hover:brightness-110 active:brightness-95 disabled:opacity-60"
               >
                 {guardando ? 'Guardando...' : 'Guardar cambios'}
               </button>
@@ -341,11 +348,11 @@ function Historial() {
   }
 
   return (
-    <div className="pt-4 md:pt-8 px-4 md:px-8 pb-8 w-full max-w-[1200px] mx-auto">
+    <div className="pt-4 md:pt-8 px-4 md:px-8 pb-8 w-full max-w-[1200px] mx-auto flex flex-col gap-stack-lg">
       {/* Header Section */}
-      <div className="mb-stack-lg flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-primary mb-2">Historial de Actas</h2>
+          <h2 className="font-headline-lg text-headline-lg text-on-surface mb-1">Historial de Actas</h2>
           <p className="font-body-md text-body-md text-on-surface-variant">
             Equipos y accesorios devueltos, por responsable y fecha.
           </p>
@@ -357,36 +364,34 @@ function Historial() {
       </div>
 
       {error && (
-        <p className="mb-stack-md text-error font-label-sm text-label-sm bg-error-container/40 border border-error/30 rounded px-3 py-2">
+        <p className="text-error font-label-sm text-label-sm bg-error-container/40 border border-error/30 rounded-lg px-3 py-2">
           {error}
         </p>
       )}
 
       {/* Search Toolbar */}
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-stack-md mb-stack-lg shadow-sm">
-        <Buscador
-          value={busqueda}
-          onChange={setBusqueda}
-          placeholder="Buscar por responsable, departamento, puesto, planta, marca, serie, nombre del equipo..."
-        />
-      </div>
+      <Buscador
+        value={busqueda}
+        onChange={setBusqueda}
+        placeholder="Buscar por responsable, departamento, puesto, planta, marca, serie, nombre del equipo..."
+      />
 
       {/* Data Table Container */}
-      <div className="bg-surface-container-lowest border-t-4 border-t-primary border-l border-r border-b border-outline-variant rounded-b-DEFAULT shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[640px] text-left border-collapse text-sm">
             <thead>
-              <tr className="bg-header-fill border-b border-outline-variant">
-                <th className="py-3 px-4 font-label-bold text-label-bold text-on-surface uppercase tracking-wider border-r border-outline-variant">
+              <tr className="bg-surface-container-low border-b border-outline-variant">
+                <th className="px-5 py-3.5 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">
                   Producto
                 </th>
-                <th className="py-3 px-4 font-label-bold text-label-bold text-on-surface uppercase tracking-wider border-r border-outline-variant">
+                <th className="px-5 py-3.5 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">
                   Nombre
                 </th>
-                <th className="py-3 px-4 font-label-bold text-label-bold text-on-surface uppercase tracking-wider border-r border-outline-variant">
+                <th className="px-5 py-3.5 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">
                   Fecha
                 </th>
-                <th className="py-3 px-4 font-label-bold text-label-bold text-on-surface uppercase tracking-wider text-right">
+                <th className="px-5 py-3.5 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-right">
                   Acciones
                 </th>
               </tr>
@@ -417,55 +422,57 @@ function Historial() {
                 registrosFiltrados.map((r) => (
                   <tr
                     key={r.id}
-                    className="border-b border-outline-variant hover:bg-surface-blue transition-colors group"
+                    className="border-b border-outline-variant last:border-0 hover:bg-surface-container-low transition-colors group"
                   >
-                    <td className="py-4 px-4 border-r border-outline-variant">
-                      <div className="flex items-center gap-1.5 text-on-surface">
-                        <span className="material-symbols-outlined text-[16px] text-secondary">
-                          assignment_return
-                        </span>
-                        <span>{r.nombre_equipo || r.marca || 'Sin especificar'}</span>
-                      </div>
+                    <td className="px-5 py-4">
+                      <span className="inline-flex items-center gap-2 font-medium text-on-surface">
+                        <PackageOpen className="h-4 w-4 text-on-surface-variant" strokeWidth={2} aria-hidden="true" />
+                        {r.nombre_equipo || r.marca || 'Sin especificar'}
+                      </span>
                     </td>
-                    <td className="py-4 px-4 border-r border-outline-variant font-bold text-on-surface">
+                    <td className="px-5 py-4 font-semibold text-on-surface">
                       {r.responsable}
                     </td>
-                    <td className="py-4 px-4 border-r border-outline-variant text-on-surface-variant whitespace-nowrap">
+                    <td className="px-5 py-4 text-on-surface-variant whitespace-nowrap">
                       {r.fecha ? new Date(r.fecha).toLocaleDateString('es-GT') : '-'}
                     </td>
-                    <td className="py-4 px-4 text-right whitespace-nowrap">
+                    <td className="px-5 py-4">
                       {/* Fase 5: antes solo aparecían con hover (group-hover),
                           invisibles en móvil por no haber mouse. Ahora quedan
                           siempre visibles en cualquier dispositivo. */}
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => handleDescargarPdf(r.id)}
                           disabled={descargandoId === r.id}
-                          className="grid h-9 w-9 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface disabled:opacity-50"
+                          aria-label="Descargar PDF"
+                          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-transparent text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                           title="Descargar PDF"
                         >
-                          <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
+                          <FileText className="h-4.5 w-4.5" strokeWidth={2} />
                         </button>
                         <button
                           onClick={() => abrirModal(r.id, 'ver')}
-                          className="grid h-9 w-9 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+                          aria-label="Ver detalle"
+                          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-transparent text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                           title="Ver Detalle"
                         >
-                          <span className="material-symbols-outlined text-sm">visibility</span>
+                          <Eye className="h-4.5 w-4.5" strokeWidth={2} />
                         </button>
                         <button
                           onClick={() => abrirModal(r.id, 'editar')}
-                          className="grid h-9 w-9 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container"
+                          aria-label="Editar"
+                          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-transparent text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                           title="Editar"
                         >
-                          <span className="material-symbols-outlined text-sm">edit</span>
+                          <Pencil className="h-4.5 w-4.5" strokeWidth={2} />
                         </button>
                         <button
                           onClick={() => setModalEliminar(r.id)}
-                          className="grid h-9 w-9 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container"
+                          aria-label="Eliminar"
+                          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-transparent text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                           title="Eliminar"
                         >
-                          <span className="material-symbols-outlined text-sm">delete</span>
+                          <Trash2 className="h-4.5 w-4.5" strokeWidth={2} />
                         </button>
                       </div>
                     </td>
