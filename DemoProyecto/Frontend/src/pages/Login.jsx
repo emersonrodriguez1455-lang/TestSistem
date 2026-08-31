@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function Login() {
@@ -45,25 +46,31 @@ function Login() {
         }}
       />
 
-      <div className="relative w-full max-w-sm flex flex-col items-center">
-        {/* Logo flotando sobre el fondo, fuera de la tarjeta */}
-        <img
-          src="/logo-legumex.png"
-          alt="Legumex"
-          className="w-56 h-auto mb-2 drop-shadow-sm"
-        />
-        <p className="font-body-md text-body-md text-on-surface-variant mb-6 -mt-2">
-          Control Operativo · Administración Industrial
-        </p>
+      <div className="relative w-full max-w-[26rem]">
+        {/* Marca: ahora fuera de la tarjeta, como cabecera de toda la pantalla */}
+        <div className="mb-8 flex flex-col items-center text-center">
+          <img
+            src="/logo-legumex.png"
+            alt="Agroindustria Legumex"
+            className="w-56 sm:w-64 h-auto drop-shadow-sm"
+          />
+          <div className="mt-3 flex items-center gap-2 font-label-sm text-label-sm text-on-surface-variant">
+            <span>Control Operativo</span>
+            <span className="h-1 w-1 rounded-full bg-outline" aria-hidden="true" />
+            <span>Administración Industrial</span>
+          </div>
+        </div>
 
-        <div className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
-          <div className="h-[3px] w-full bg-primary" />
+        {/* Tarjeta */}
+        <div className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm sm:p-8">
+          {/* Filete de acento en la parte superior de la tarjeta */}
+          <div className="mx-auto mb-7 h-1 w-12 rounded-full bg-primary" aria-hidden="true" />
 
-          <form onSubmit={handleSubmit} className="p-stack-lg flex flex-col gap-stack-md">
-          <div className="flex flex-col gap-1">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-stack-md">
+          <div className="flex flex-col gap-2">
             <label className="font-label-bold text-label-bold text-on-surface">Usuario</label>
             <input
-              className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
+              className="h-12 w-full rounded-lg border border-outline-variant bg-surface px-4 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="admin"
@@ -72,11 +79,11 @@ function Login() {
             />
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             <label className="font-label-bold text-label-bold text-on-surface">Contraseña</label>
             <input
               type="password"
-              className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
+              className="h-12 w-full rounded-lg border border-outline-variant bg-surface px-4 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -85,7 +92,7 @@ function Login() {
           </div>
 
           {error && (
-            <p className="text-error font-label-sm text-label-sm bg-error-container/40 border border-error/30 rounded px-3 py-2">
+            <p className="text-error font-label-sm text-label-sm bg-error-container/40 border border-error/30 rounded-lg px-3 py-2">
               {error}
             </p>
           )}
@@ -93,25 +100,17 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-on-primary py-2.5 rounded font-label-bold text-label-bold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+            className="mt-1 inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary font-label-bold text-label-bold text-on-primary shadow-sm transition-all hover:brightness-110 active:brightness-95 disabled:opacity-50"
           >
-            {loading && (
-              <span
-                className="material-symbols-outlined text-base animate-spin"
-                aria-hidden="true"
-              >
-                progress_activity
-              </span>
-            )}
+            {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} aria-hidden="true" />}
             {loading ? 'Ingresando...' : 'Iniciar Sesión'}
           </button>
-
-           {/*  <p className="text-center font-label-sm text-label-sm text-on-surface-variant border-t border-outline-variant pt-3">
-              Demo: <span className="font-mono">admin / admin123</span> (Administrador) ·{' '}
-              <span className="font-mono">usuario / usuario123</span> (Usuario)
-            </p> */}
-          </form>
+        </form>
         </div>
+
+        <p className="mt-6 text-center font-label-sm text-label-sm text-on-surface-variant">
+          Acceso restringido a personal autorizado de LEGUMEX.
+        </p>
       </div>
     </div>
   )
