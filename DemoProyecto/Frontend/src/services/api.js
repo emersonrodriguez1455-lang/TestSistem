@@ -20,7 +20,12 @@ async function request(path, options = {}) {
 
   if (!response.ok) {
     const message = (data && data.message) || `Error ${response.status}`
-    throw new Error(message)
+    const error = new Error(message)
+    // Fase F: se adjunta el status HTTP para que las pantallas puedan
+    // distinguir un 409 (conflicto de concurrencia -- alguien más editó el
+    // mismo registro) de otros errores y mostrar un mensaje específico.
+    error.status = response.status
+    throw error
   }
 
   return data
