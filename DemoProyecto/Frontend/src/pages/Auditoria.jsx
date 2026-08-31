@@ -3,10 +3,16 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { obtenerAuditoria, exportarAuditoriaExcel } from '../services/api.js'
 import BotonExcel from '../components/BotonExcel.jsx'
 
+/*
+ * Monocromático total: los 3 estados (CREADO, EDITADO, ELIMINADO) son
+ * variantes de gris/negro, sin color, ni siquiera en ELIMINADO (el rojo
+ * queda reservado solo para la acción interactiva de eliminar, no para
+ * esta etiqueta de solo lectura).
+ */
 const ACCION_INFO = {
-  CREAR: { label: 'Creado', icon: 'add_circle', classes: 'bg-surface-container-highest border-primary text-primary' },
-  EDITAR: { label: 'Editado', icon: 'edit_document', classes: 'bg-surface-container-low border-secondary text-secondary' },
-  ELIMINAR: { label: 'Eliminado', icon: 'delete', classes: 'bg-error-container border-error text-error' },
+  CREAR: { label: 'Creado', icon: 'add_circle', classes: 'bg-surface-container-highest border-transparent text-on-surface' },
+  EDITAR: { label: 'Editado', icon: 'edit_document', classes: 'border-outline bg-surface text-on-surface' },
+  ELIMINAR: { label: 'Eliminado', icon: 'delete', classes: 'bg-on-surface border-transparent text-surface' },
 }
 
 const NOMBRES_CAMPO = {
