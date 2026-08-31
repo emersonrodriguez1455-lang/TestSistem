@@ -117,11 +117,20 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
     setGuardando(true)
     setError('')
     try {
-      await editarActa(token, acta.id, { ...datos, password })
+      // Fase F: se manda la versión que tenía el acta cuando se abrió este
+      // modal -- si alguien más la editó mientras tanto, el backend
+      // responde 409 en vez de sobrescribir en silencio.
+      await editarActa(token, acta.id, { ...datos, password, version: acta.version })
       onGuardado()
       onClose()
     } catch (err) {
-      setError(err.message || 'No se pudo guardar el acta')
+      if (err.status === 409) {
+        setError(
+          'Este acta fue modificada por otra persona mientras la editabas. Cierra este formulario y ábrelo de nuevo para ver los cambios más recientes.'
+        )
+      } else {
+        setError(err.message || 'No se pudo guardar el acta')
+      }
     } finally {
       setGuardando(false)
     }
