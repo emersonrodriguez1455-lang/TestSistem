@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Pencil } from 'lucide-react'
 
 /**
  * Texto que se ve como texto normal, pero al hacer clic se convierte
@@ -64,9 +65,10 @@ function InlineEditableText({ value, onChange, className = '', inputClassName = 
       className={`group inline-flex items-center gap-1 text-left hover:text-secondary transition-colors cursor-text ${className}`}
     >
       <span>{value}</span>
-      <span className="material-symbols-outlined text-[13px] opacity-0 group-hover:opacity-60 transition-opacity">
-        edit
-      </span>
+      <Pencil
+        className="h-3 w-3 opacity-0 group-hover:opacity-60 transition-opacity"
+        strokeWidth={2.25}
+      />
     </button>
   )
 }
