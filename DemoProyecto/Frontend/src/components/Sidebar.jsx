@@ -11,8 +11,8 @@ function NavItem({ to, icon, label, end, onNavigate }) {
         [
           'flex items-center gap-4 px-4 py-3 rounded-lg font-body-md transition-all duration-200 active:translate-x-1 group',
           isActive
-            ? 'bg-secondary-container text-on-secondary-container font-bold border-l-4 border-secondary'
-            : 'text-on-surface-subtle hover:bg-surface-container-highest',
+            ? 'bg-primary-container text-on-primary-container font-bold'
+            : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface',
         ].join(' ')
       }
     >
@@ -68,7 +68,7 @@ function Sidebar({ abierto, onCerrar }) {
         {/* Header */}
         <div className="px-stack-lg mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-primary-container rounded flex items-center justify-center text-on-primary">
+            <div className="w-10 h-10 bg-primary rounded flex items-center justify-center text-on-primary">
               <span
                 className="material-symbols-outlined"
                 style={{ fontVariationSettings: "'FILL' 1" }}
