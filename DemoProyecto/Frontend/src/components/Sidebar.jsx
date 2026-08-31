@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { FileInput, ClipboardList, ShieldCheck, LogOut, X } from 'lucide-react'
+import { FileInput, ClipboardList, ShieldCheck, Users, LogOut, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function NavItem({ to, icon: Icon, label, end, onNavigate }) {
@@ -96,6 +96,7 @@ function Sidebar({ abierto, onCerrar }) {
           <NavItem to="/" icon={FileInput} label="Hoja de Devolución" end onNavigate={onCerrar} />
           <NavItem to="/historial" icon={ClipboardList} label="Historial de Actas" onNavigate={onCerrar} />
           {isAdmin && <NavItem to="/auditoria" icon={ShieldCheck} label="Auditoría" onNavigate={onCerrar} />}
+          {isAdmin && <NavItem to="/usuarios" icon={Users} label="Usuarios" onNavigate={onCerrar} />}
         </div>
 
         {/* Footer: usuario actual + cerrar sesión */}
