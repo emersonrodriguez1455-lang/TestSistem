@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PlusCircle, PencilLine, Trash2, Info, ChevronUp, Eye, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { obtenerAuditoria, exportarAuditoriaExcel } from '../services/api.js'
 import BotonExcel from '../components/BotonExcel.jsx'
@@ -10,9 +11,9 @@ import BotonExcel from '../components/BotonExcel.jsx'
  * esta etiqueta de solo lectura).
  */
 const ACCION_INFO = {
-  CREAR: { label: 'Creado', icon: 'add_circle', classes: 'bg-surface-container-highest border-transparent text-on-surface' },
-  EDITAR: { label: 'Editado', icon: 'edit_document', classes: 'border-outline bg-surface text-on-surface' },
-  ELIMINAR: { label: 'Eliminado', icon: 'delete', classes: 'bg-on-surface border-transparent text-surface' },
+  CREAR: { label: 'Creado', icon: PlusCircle, classes: 'bg-surface-container-high text-on-surface' },
+  EDITAR: { label: 'Editado', icon: PencilLine, classes: 'border border-outline bg-surface text-on-surface' },
+  ELIMINAR: { label: 'Eliminado', icon: Trash2, classes: 'bg-on-surface text-surface' },
 }
 
 const NOMBRES_CAMPO = {
@@ -78,8 +79,8 @@ function Auditoria() {
   return (
     <>
       {/* Top App Bar for Desktop */}
-      <div className="hidden md:flex justify-between items-center px-container-padding py-stack-md bg-surface border-b border-outline-variant">
-        <div className="font-headline-lg text-headline-lg font-bold text-primary">Registro de Auditoría</div>
+      <div className="hidden md:flex justify-between items-center px-container-padding py-stack-md bg-surface-container-lowest border-b border-outline-variant">
+        <div className="font-headline-lg text-headline-lg font-bold text-on-surface">Registro de Auditoría</div>
         <div className="flex items-center gap-stack-md">
           <BotonExcel
             onExportar={(password) => exportarAuditoriaExcel(token, password)}
@@ -89,35 +90,37 @@ function Auditoria() {
       </div>
 
       {/* Scrollable Content Canvas */}
-      <div className="flex-1 p-container-padding md:p-stack-lg bg-surface-bright">
-        <div className="max-w-[896px] mx-auto flex flex-col gap-stack-lg">
+      <div className="flex-1 p-container-padding md:p-stack-lg bg-background">
+        <div className="max-w-[1200px] mx-auto flex flex-col gap-stack-lg">
           {/* Mobile Header Title */}
-          <div className="md:hidden">
-            <h1 className="font-headline-lg text-headline-lg font-bold text-primary">Registro de Auditoría</h1>
-            <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-              Monitoreo de actividades del sistema operativo.
-            </p>
+          <div className="md:hidden flex items-center justify-between gap-3">
+            <div>
+              <h1 className="font-headline-lg text-headline-lg font-bold text-on-surface">Registro de Auditoría</h1>
+              <p className="font-body-md text-body-md text-on-surface-variant mt-1">
+                Monitoreo de actividades del sistema operativo.
+              </p>
+            </div>
           </div>
 
           {/* Data Table Section */}
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden shadow-sm">
+          <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-[720px] text-left border-collapse text-sm">
                 <thead>
-                  <tr className="bg-header-fill border-b border-outline-variant">
-                    <th className="p-3 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
+                  <tr className="bg-surface-container-low border-b border-outline-variant">
+                    <th className="px-5 py-3.5 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
                       Timestamp
                     </th>
-                    <th className="p-3 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-5 py-3.5 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
                       Usuario
                     </th>
-                    <th className="p-3 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-5 py-3.5 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
                       Acción
                     </th>
-                    <th className="p-3 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-5 py-3.5 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
                       Acta Afectada
                     </th>
-                    <th className="p-3 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-right">
+                    <th className="px-5 py-3.5 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-right">
                       Detalle
                     </th>
                   </tr>
@@ -149,68 +152,74 @@ function Auditoria() {
                     logs.map((log) => {
                       const info = ACCION_INFO[log.accion] || {
                         label: log.accion,
-                        icon: 'info',
-                        classes: 'bg-surface-container-highest border-outline text-on-surface',
+                        icon: Info,
+                        classes: 'bg-surface-container-high text-on-surface',
                       }
+                      const AccionIcon = info.icon
                       return (
                         <>
-                          <tr key={log.id} className="hover:bg-surface-blue transition-colors group">
-                            <td className="p-3 whitespace-nowrap font-label-sm text-on-surface-subtle">
-                              <div className="font-body-md text-on-surface">
+                          <tr
+                            key={log.id}
+                            className="border-b border-outline-variant last:border-0 hover:bg-surface-container-low transition-colors group"
+                          >
+                            <td className="px-5 py-4 whitespace-nowrap align-top">
+                              <div className="font-semibold text-on-surface">
                                 {log.fecha ? new Date(log.fecha).toLocaleDateString('es-GT') : '-'}
                               </div>
-                              <div>{log.fecha ? new Date(log.fecha).toLocaleTimeString('es-GT') : ''}</div>
-                            </td>
-                            <td className="p-3">
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full flex items-center justify-center font-label-bold text-[10px] bg-secondary-container text-on-secondary-container">
-                                  {iniciales(log.usuario)}
-                                </div>
-                                <span className="font-medium">{log.usuario || 'Usuario eliminado'}</span>
+                              <div className="font-label-sm text-label-sm text-on-surface-variant">
+                                {log.fecha ? new Date(log.fecha).toLocaleTimeString('es-GT') : ''}
                               </div>
                             </td>
-                            <td className="p-3">
+                            <td className="px-5 py-4">
+                              <div className="inline-flex items-center gap-2">
+                                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-secondary-container font-label-bold text-[10px] text-on-secondary-container">
+                                  {iniciales(log.usuario)}
+                                </span>
+                                <span className="font-medium text-on-surface">{log.usuario || 'Usuario eliminado'}</span>
+                              </div>
+                            </td>
+                            <td className="px-5 py-4">
                               <span
-                                className={`inline-flex items-center gap-1 px-2 py-1 border font-label-sm rounded uppercase ${info.classes}`}
+                                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-label-sm text-label-sm uppercase tracking-wide ${info.classes}`}
                               >
-                                <span className="material-symbols-outlined text-[14px]">{info.icon}</span>
+                                <AccionIcon className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
                                 {info.label}
                               </span>
                             </td>
-                            <td className="p-3 text-sm text-primary">
+                            <td className="px-5 py-4 text-on-surface">
                               {log.acta_responsable || log.nombre_equipo
                                 ? `${log.acta_responsable || ''} ${log.nombre_equipo ? `(${log.nombre_equipo})` : ''}`.trim()
                                 : 'Acta eliminada'}
                             </td>
-                            <td className="p-3 text-right">
+                            <td className="px-5 py-4 text-right">
                               <button
                                 onClick={() => setExpandidoId((id) => (id === log.id ? null : log.id))}
                                 disabled={!log.detalle || Object.keys(log.detalle).length === 0}
-                                className="text-on-surface-variant hover:text-secondary group-hover:opacity-100 opacity-50 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                                className="grid h-9 w-9 ml-auto place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface disabled:opacity-30 disabled:cursor-not-allowed"
                                 title={log.detalle ? 'Ver cambios' : 'Sin detalle'}
                               >
-                                <span className="material-symbols-outlined">
-                                  {expandidoId === log.id ? 'expand_less' : 'visibility'}
-                                </span>
+                                {expandidoId === log.id ? (
+                                  <ChevronUp className="h-4.5 w-4.5" strokeWidth={2} />
+                                ) : (
+                                  <Eye className="h-4.5 w-4.5" strokeWidth={2} />
+                                )}
                               </button>
                             </td>
                           </tr>
                           {expandidoId === log.id && log.detalle && (
-                            <tr className="bg-surface-container-low">
-                              <td colSpan={5} className="p-4">
+                            <tr className="bg-surface-container-low border-b border-outline-variant last:border-0">
+                              <td colSpan={5} className="px-5 py-4">
                                 <div className="flex flex-col gap-2">
                                   {Object.entries(log.detalle).map(([campo, cambio]) => (
                                     <div key={campo} className="flex flex-wrap items-center gap-2 text-sm">
                                       <span className="font-label-bold text-label-bold text-on-surface min-w-[140px]">
                                         {NOMBRES_CAMPO[campo] || campo}:
                                       </span>
-                                      <span className="px-2 py-0.5 rounded bg-error-container text-on-error-container line-through">
+                                      <span className="px-2 py-0.5 rounded-md bg-error-container text-on-error-container line-through">
                                         {formatearValor(cambio.antes)}
                                       </span>
-                                      <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
-                                        arrow_forward
-                                      </span>
-                                      <span className="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container">
+                                      <ArrowRight className="h-4 w-4 text-on-surface-variant" strokeWidth={2} />
+                                      <span className="px-2 py-0.5 rounded-md bg-secondary-container text-on-secondary-container">
                                         {formatearValor(cambio.despues)}
                                       </span>
                                     </div>
