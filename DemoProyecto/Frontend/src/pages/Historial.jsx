@@ -232,7 +232,7 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
               <button
                 type="submit"
                 disabled={guardando}
-                className="px-4 py-2 bg-primary-container text-on-primary rounded font-label-bold text-label-bold hover:opacity-90 disabled:opacity-60"
+                className="px-4 py-2 bg-primary text-on-primary rounded font-label-bold text-label-bold hover:opacity-90 disabled:opacity-60"
               >
                 {guardando ? 'Guardando...' : 'Guardar cambios'}
               </button>
@@ -441,28 +441,28 @@ function Historial() {
                         <button
                           onClick={() => handleDescargarPdf(r.id)}
                           disabled={descargandoId === r.id}
-                          className="p-1.5 text-on-surface-variant hover:bg-surface-variant rounded-DEFAULT transition-colors disabled:opacity-50"
+                          className="grid h-9 w-9 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface disabled:opacity-50"
                           title="Descargar PDF"
                         >
                           <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
                         </button>
                         <button
                           onClick={() => abrirModal(r.id, 'ver')}
-                          className="p-1.5 text-secondary hover:bg-secondary-container rounded-DEFAULT transition-colors"
+                          className="grid h-9 w-9 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
                           title="Ver Detalle"
                         >
                           <span className="material-symbols-outlined text-sm">visibility</span>
                         </button>
                         <button
                           onClick={() => abrirModal(r.id, 'editar')}
-                          className="p-1.5 text-on-surface hover:bg-surface-variant rounded-DEFAULT transition-colors"
+                          className="grid h-9 w-9 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container"
                           title="Editar"
                         >
                           <span className="material-symbols-outlined text-sm">edit</span>
                         </button>
                         <button
                           onClick={() => setModalEliminar(r.id)}
-                          className="p-1.5 text-error hover:bg-error-container rounded-DEFAULT transition-colors"
+                          className="grid h-9 w-9 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container"
                           title="Eliminar"
                         >
                           <span className="material-symbols-outlined text-sm">delete</span>
