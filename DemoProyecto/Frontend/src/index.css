@@ -26,12 +26,12 @@ body {
   height: 8px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f4fbf4;
+  background: #f3f4f7;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #dde5dd;
+  background: #e2e4ea;
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #c1c8c2;
+  background: #a9adb9;
 }
