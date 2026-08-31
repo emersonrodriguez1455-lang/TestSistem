@@ -78,28 +78,21 @@ function Auditoria() {
 
   return (
     <>
-      {/* Top App Bar for Desktop */}
-      <div className="hidden md:flex justify-between items-center px-container-padding py-stack-md bg-surface-container-lowest border-b border-outline-variant">
-        <div className="font-headline-lg text-headline-lg font-bold text-on-surface">Registro de Auditoría</div>
-        <div className="flex items-center gap-stack-md">
-          <BotonExcel
-            onExportar={(password) => exportarAuditoriaExcel(token, password)}
-            nombreArchivo="Auditoria.xlsx"
-          />
-        </div>
-      </div>
-
       {/* Scrollable Content Canvas */}
       <div className="flex-1 p-container-padding md:p-stack-lg bg-background">
         <div className="max-w-[1200px] mx-auto flex flex-col gap-stack-lg">
-          {/* Mobile Header Title */}
-          <div className="md:hidden flex items-center justify-between gap-3">
+          {/* Header Section */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
             <div>
-              <h1 className="font-headline-lg text-headline-lg font-bold text-on-surface">Registro de Auditoría</h1>
-              <p className="font-body-md text-body-md text-on-surface-variant mt-1">
+              <h1 className="font-headline-lg text-headline-lg font-bold text-on-surface mb-1">Registro de Auditoría</h1>
+              <p className="font-body-md text-body-md text-on-surface-variant">
                 Monitoreo de actividades del sistema operativo.
               </p>
             </div>
+            <BotonExcel
+              onExportar={(password) => exportarAuditoriaExcel(token, password)}
+              nombreArchivo="Auditoria.xlsx"
+            />
           </div>
 
           {/* Data Table Section */}
