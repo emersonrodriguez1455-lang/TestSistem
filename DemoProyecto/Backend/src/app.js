@@ -9,6 +9,13 @@ require('dotenv').config();
 // ============================================
 const app = express();
 
+// Render (y la mayoría de hostings) ponen la app detrás de un proxy que
+// agrega la cabecera X-Forwarded-For con la IP real del cliente. Sin esto,
+// express-rate-limit no puede confiar en esa cabecera (por seguridad, para
+// que nadie la falsifique) y tira ERR_ERL_UNEXPECTED_X_FORWARDED_FOR. "1"
+// significa "confía en un salto de proxy" (el de Render), no en cualquiera.
+app.set('trust proxy', 1);
+
 // ============================================
 // 2️⃣ Middlewares globales
 // ============================================
