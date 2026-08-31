@@ -45,24 +45,21 @@ function Login() {
         }}
       />
 
-      <div className="relative w-full max-w-sm bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
-        <div className="h-[3px] w-full bg-primary" />
+      <div className="relative w-full max-w-sm flex flex-col items-center">
+        {/* Logo flotando sobre el fondo, fuera de la tarjeta */}
+        <img
+          src="/logo-legumex.png"
+          alt="Legumex"
+          className="w-56 h-auto mb-2 drop-shadow-sm"
+        />
+        <p className="font-body-md text-body-md text-on-surface-variant mb-6 -mt-2">
+          Control Operativo · Administración Industrial
+        </p>
 
-        <div className="p-stack-lg flex flex-col items-center text-center gap-2">
-          <div className="w-14 h-14 bg-primary rounded flex items-center justify-center text-on-primary mb-2 overflow-hidden">
-            <img
-              src="/logo-legumex.png"
-              alt="Legumex"
-              className="w-full h-full object-contain p-1"
-            />
-          </div>
-          <h1 className="font-headline-lg text-headline-lg font-bold text-primary">LEGUMEX</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">
-            Control Operativo · Administración Industrial
-          </p>
-        </div>
+        <div className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
+          <div className="h-[3px] w-full bg-primary" />
 
-        <form onSubmit={handleSubmit} className="px-stack-lg pb-stack-lg flex flex-col gap-stack-md">
+          <form onSubmit={handleSubmit} className="p-stack-lg flex flex-col gap-stack-md">
           <div className="flex flex-col gap-1">
             <label className="font-label-bold text-label-bold text-on-surface">Usuario</label>
             <input
@@ -109,13 +106,13 @@ function Login() {
             {loading ? 'Ingresando...' : 'Iniciar Sesión'}
           </button>
 
-         {/*  <p className="text-center font-label-sm text-label-sm text-on-surface-variant border-t border-outline-variant pt-3">
-            Demo: <span className="font-mono">admin / admin123</span> (Administrador) ·{' '}
-            <span className="font-mono">usuario / usuario123</span> (Usuario)
-          </p> */}
-        </form>
+           {/*  <p className="text-center font-label-sm text-label-sm text-on-surface-variant border-t border-outline-variant pt-3">
+              Demo: <span className="font-mono">admin / admin123</span> (Administrador) ·{' '}
+              <span className="font-mono">usuario / usuario123</span> (Usuario)
+            </p> */}
+          </form>
+        </div>
       </div>
-      
     </div>
   )
 }
