@@ -7,12 +7,14 @@ import {
   editarActa,
   eliminarActa,
   descargarPdfActa,
+  guardarFirma,
   reiniciarFirma,
   exportarActasExcel,
 } from '../services/api.js'
 import Buscador from '../components/Buscador.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import BotonExcel from '../components/BotonExcel.jsx'
+import FirmaPad from '../components/FirmaPad.jsx'
 
 // Campos del acta sobre los que se compara el texto ingresado en el buscador.
 // Incluye los datos visibles/relevantes del historial (responsable, departamento,
@@ -89,8 +91,28 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
   const [modalReiniciarFirma, setModalReiniciarFirma] = useState(null) // 'entrega' | 'recibe' | null
   const [reiniciandoFirma, setReiniciandoFirma] = useState(false)
   const [errorReiniciarFirma, setErrorReiniciarFirma] = useState('')
+  const [firmando, setFirmando] = useState(null) // 'entrega' | 'recibe' | null mientras se sube una firma nueva
+  const [errorFirmar, setErrorFirmar] = useState('')
 
   const soloLectura = modo === 'ver'
+
+  // Firmar de nuevo (después de reiniciar, o directamente si nunca hubo
+  // firma): sube la imagen ya y la deja guardada de inmediato -- no depende
+  // de que se guarde el resto del formulario, igual que "Reiniciar".
+  async function handleFirmar(tipo, dataUrlBase64) {
+    setFirmando(tipo)
+    setErrorFirmar('')
+    try {
+      await guardarFirma(token, acta.id, tipo, dataUrlBase64)
+      if (tipo === 'entrega') setFirmaEntregaUrl(dataUrlBase64)
+      else setFirmaRecibeUrl(dataUrlBase64)
+      onGuardado()
+    } catch (err) {
+      setErrorFirmar(err.message || 'No se pudo guardar la firma')
+    } finally {
+      setFirmando(null)
+    }
+  }
 
   async function handleReiniciarFirma(passwordReinicio) {
     const tipo = modalReiniciarFirma
@@ -178,33 +200,53 @@ function ActaModal({ acta, modo, onClose, onGuardado }) {
 
           <div className="flex flex-col gap-3 pt-2 border-t border-outline-variant">
             <p className="font-label-bold text-label-bold text-on-surface">Firmas</p>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { tipo: 'entrega', label: 'Quien Entrega', url: firmaEntregaUrl },
-                { tipo: 'recibe', label: 'Quien Recibe', url: firmaRecibeUrl },
-              ].map(({ tipo, label, url }) => (
-                <div
-                  key={tipo}
-                  className="flex flex-col items-center gap-1.5 border border-outline-variant rounded-lg p-2.5 bg-surface-container-low"
-                >
-                  {url ? (
-                    <img src={url} alt={`Firma ${label}`} className="h-16 object-contain" />
-                  ) : (
-                    <p className="font-label-sm text-label-sm text-on-surface-variant py-4">Sin firma</p>
-                  )}
-                  <p className="font-label-sm text-label-sm text-on-surface-variant">{label}</p>
-                  {url && (
-                    <button
-                      type="button"
-                      onClick={() => setModalReiniciarFirma(tipo)}
-                      className="rounded-md px-2 py-1 font-label-sm text-label-sm text-on-surface-variant underline-offset-2 transition-colors hover:text-error hover:underline"
-                    >
-                      Reiniciar
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+            {soloLectura ? (
+              // Modo "ver": solo se muestra, sin controles de reiniciar/firmar.
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { tipo: 'entrega', label: 'Quien Entrega', url: firmaEntregaUrl },
+                  { tipo: 'recibe', label: 'Quien Recibe', url: firmaRecibeUrl },
+                ].map(({ tipo, label, url }) => (
+                  <div
+                    key={tipo}
+                    className="flex flex-col items-center gap-1.5 border border-outline-variant rounded-lg p-2.5 bg-surface-container-low"
+                  >
+                    {url ? (
+                      <img src={url} alt={`Firma ${label}`} className="h-16 object-contain" />
+                    ) : (
+                      <p className="font-label-sm text-label-sm text-on-surface-variant py-4">Sin firma</p>
+                    )}
+                    <p className="font-label-sm text-label-sm text-on-surface-variant">{label}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Modo "editar": FirmaPad permite firmar de nuevo apenas se
+              // reinicia (o si nunca hubo firma) -- ya no se queda "sin
+              // firma" sin forma de capturar una nueva.
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <FirmaPad
+                  titulo="Quien Entrega"
+                  firmaUrl={firmaEntregaUrl}
+                  onConfirmar={(dataUrl) => handleFirmar('entrega', dataUrl)}
+                  onReiniciar={() => setModalReiniciarFirma('entrega')}
+                />
+                <FirmaPad
+                  titulo="Quien Recibe"
+                  firmaUrl={firmaRecibeUrl}
+                  onConfirmar={(dataUrl) => handleFirmar('recibe', dataUrl)}
+                  onReiniciar={() => setModalReiniciarFirma('recibe')}
+                />
+              </div>
+            )}
+            {firmando && (
+              <p className="font-label-sm text-label-sm text-on-surface-variant">Guardando firma...</p>
+            )}
+            {errorFirmar && (
+              <p className="text-error font-label-sm text-label-sm bg-error-container/40 border border-error/30 rounded-lg px-3 py-2">
+                {errorFirmar}
+              </p>
+            )}
           </div>
 
           {!soloLectura && (
