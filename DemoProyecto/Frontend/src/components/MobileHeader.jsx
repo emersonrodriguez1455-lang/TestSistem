@@ -11,11 +11,6 @@ function MobileHeader({ onAbrirMenu }) {
         </button>
         <span className="font-headline-lg text-headline-lg font-bold text-primary">LEGUMEX</span>
       </div>
-      <div className="flex items-center gap-4 text-primary">
-        <div className="w-8 h-8 rounded-full bg-surface-variant border border-outline-variant flex items-center justify-center overflow-hidden">
-          <span className="material-symbols-outlined text-outline text-lg">person</span>
-        </div>
-      </div>
     </header>
   )
 }
