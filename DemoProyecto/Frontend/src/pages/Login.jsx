@@ -29,12 +29,27 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background font-body-lg px-4">
-      <div className="w-full max-w-sm bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background font-body-lg px-4">
+      {/* Fondo de marca sutil — una cuadrícula "ink" discreta, sin gradientes ni manchas */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-50"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, #e2e4ea 1px, transparent 1px), linear-gradient(to bottom, #e2e4ea 1px, transparent 1px)',
+          backgroundSize: '52px 52px',
+          maskImage:
+            'radial-gradient(ellipse 70% 60% at 50% 42%, black 40%, transparent 100%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 70% 60% at 50% 42%, black 40%, transparent 100%)',
+        }}
+      />
+
+      <div className="relative w-full max-w-sm bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
         <div className="h-[3px] w-full bg-primary" />
 
         <div className="p-stack-lg flex flex-col items-center text-center gap-2">
-          <div className="w-14 h-14 bg-primary-container rounded flex items-center justify-center text-on-primary mb-2">
+          <div className="w-14 h-14 bg-primary rounded flex items-center justify-center text-on-primary mb-2">
             <span
               className="material-symbols-outlined text-3xl"
               style={{ fontVariationSettings: "'FILL' 1" }}
@@ -82,7 +97,7 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary-container text-on-primary py-2.5 rounded font-label-bold text-label-bold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full bg-primary text-on-primary py-2.5 rounded font-label-bold text-label-bold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading && (
               <span
