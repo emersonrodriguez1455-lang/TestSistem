@@ -29,44 +29,54 @@ function Devolucion() {
   const { token } = useAuth()
   const [saveStatus, setSaveStatus] = useState('idle') // idle | saving | saved | error
   const [errorGuardado, setErrorGuardado] = useState('')
-  const [estadoActa, setEstadoActa] = useState('borrador') // borrador | finalizado
+  // Nuevo: estos campos ya no usan useState -- usan useLocalStorageState
+  // (el mismo hook que ya usaban fechaEmision/fechaVigencia) para que, si el
+  // usuario ya llenó datos (incluida una firma ya confirmada) y sale de la
+  // página por accidente, los datos sigan ahí al volver a entrar en vez de
+  // perderse. El prefijo "devolucion:" agrupa todas las claves para poder
+  // limpiarlas juntas al finalizar o cancelar (ver limpiarFormulario).
+  const [estadoActa, setEstadoActa] = useLocalStorageState('devolucion:estadoActa', 'borrador') // borrador | finalizado
   const [errores, setErrores] = useState({})
-  const [firmaEntrega, setFirmaEntrega] = useState(null) // base64 o null
-  const [firmaRecibe, setFirmaRecibe] = useState(null)
+  const [firmaEntrega, setFirmaEntrega] = useLocalStorageState('devolucion:firmaEntrega', null) // base64 o null
+  const [firmaRecibe, setFirmaRecibe] = useLocalStorageState('devolucion:firmaRecibe', null)
 
   // Datos del Usuario (necesarios para validar al Finalizar)
-  const [fecha, setFecha] = useState('2024-10-24')
-  const [responsable, setResponsable] = useState('')
-  const [departamento, setDepartamento] = useState('')
-  const [puesto, setPuesto] = useState('')
+  const [fecha, setFecha] = useLocalStorageState('devolucion:fecha', '2024-10-24')
+  const [responsable, setResponsable] = useLocalStorageState('devolucion:responsable', '')
+  const [departamento, setDepartamento] = useLocalStorageState('devolucion:departamento', '')
+  const [puesto, setPuesto] = useLocalStorageState('devolucion:puesto', '')
   // DPI: solo se usa dentro de la frase de constancia cuando el acta es de
   // "1 página" (ver formato físico) -- ya no es un input aparte en "Datos
   // del Usuario".
-  const [dpi, setDpi] = useState('(clic para escribir su DPI)')
-  const [planta, setPlanta] = useState('Tejar')
+  const [dpi, setDpi] = useLocalStorageState('devolucion:dpi', '(clic para escribir su DPI)')
+  const [planta, setPlanta] = useLocalStorageState('devolucion:planta', 'Tejar')
 
-  const [modalidadPaginas, setModalidadPaginas] = useState('dos') // 'una' | 'dos'
-  const [tipoEquipo, setTipoEquipo] = useState('Laptop')
-  const [estadoEquipo, setEstadoEquipo] = useState('Nuevo')
-  const [marcaEquipo, setMarcaEquipo] = useState('Original')
-  const [marcaEquipoDetalle, setMarcaEquipoDetalle] = useState('')
-  const [modeloEquipo, setModeloEquipo] = useState('')
-  const [noSerie, setNoSerie] = useState('')
-  const [nombreEquipo, setNombreEquipo] = useState('')
-  const [procesador, setProcesador] = useState('')
-  const [memoriaRam, setMemoriaRam] = useState('16')
-  const [discoTipo, setDiscoTipo] = useState('ssd')
-  const [discoCapacidad, setDiscoCapacidad] = useState('')
+  const [modalidadPaginas, setModalidadPaginas] = useLocalStorageState('devolucion:modalidadPaginas', 'dos') // 'una' | 'dos'
+  const [tipoEquipo, setTipoEquipo] = useLocalStorageState('devolucion:tipoEquipo', 'Laptop')
+  const [estadoEquipo, setEstadoEquipo] = useLocalStorageState('devolucion:estadoEquipo', 'Nuevo')
+  const [marcaEquipo, setMarcaEquipo] = useLocalStorageState('devolucion:marcaEquipo', 'Original')
+  const [marcaEquipoDetalle, setMarcaEquipoDetalle] = useLocalStorageState('devolucion:marcaEquipoDetalle', '')
+  const [modeloEquipo, setModeloEquipo] = useLocalStorageState('devolucion:modeloEquipo', '')
+  const [noSerie, setNoSerie] = useLocalStorageState('devolucion:noSerie', '')
+  const [nombreEquipo, setNombreEquipo] = useLocalStorageState('devolucion:nombreEquipo', '')
+  const [procesador, setProcesador] = useLocalStorageState('devolucion:procesador', '')
+  // Memoria RAM: antes era un <select> con solo 8/16/32 GB fijos (le
+  // faltaba, por ejemplo, 4 GB). Pasa a ser texto libre (ver el <input> más
+  // abajo) porque el valor "fluctúa" -- distintas laptops traen distintas
+  // cantidades y una lista fija siempre se va a quedar corta.
+  const [memoriaRam, setMemoriaRam] = useLocalStorageState('devolucion:memoriaRam', '16 GB')
+  const [discoTipo, setDiscoTipo] = useLocalStorageState('devolucion:discoTipo', 'ssd')
+  const [discoCapacidad, setDiscoCapacidad] = useLocalStorageState('devolucion:discoCapacidad', '')
 
   // Constancia: campos inline (Paso 2)
-  const [diaEntrega, setDiaEntrega] = useState('__')
-  const [mesEntrega, setMesEntrega] = useState('__')
-  const [anioEntrega, setAnioEntrega] = useState('____')
-  const [nombreEntrega, setNombreEntrega] = useState('(clic para escribir su nombre)')
+  const [diaEntrega, setDiaEntrega] = useLocalStorageState('devolucion:diaEntrega', '__')
+  const [mesEntrega, setMesEntrega] = useLocalStorageState('devolucion:mesEntrega', '__')
+  const [anioEntrega, setAnioEntrega] = useLocalStorageState('devolucion:anioEntrega', '____')
+  const [nombreEntrega, setNombreEntrega] = useLocalStorageState('devolucion:nombreEntrega', '(clic para escribir su nombre)')
 
   // Accesorios: checkboxes + tabla sincronizada (Paso 3)
-  const [accesoriosSeleccionados, setAccesoriosSeleccionados] = useState([])
-  const [filasAccesorios, setFilasAccesorios] = useState([])
+  const [accesoriosSeleccionados, setAccesoriosSeleccionados] = useLocalStorageState('devolucion:accesoriosSeleccionados', [])
+  const [filasAccesorios, setFilasAccesorios] = useLocalStorageState('devolucion:filasAccesorios', [])
 
   // Modal de confirmación para descartar el formulario (botón "Cancelar")
   const [modalCancelar, setModalCancelar] = useState(false)
@@ -187,7 +197,7 @@ function Devolucion() {
         serie: noSerie,
         nombre_equipo: nombreEquipo,
         procesador,
-        memoria_ram: memoriaRam ? `${memoriaRam} GB` : '',
+        memoria_ram: memoriaRam || '',
         disco_duro: discoCapacidad ? `${discoTipo.toUpperCase()} ${discoCapacidad}` : '',
         borrador: false,
         firma_entrega_base64: firmaEntrega,
@@ -202,7 +212,14 @@ function Devolucion() {
       })
       setEstadoActa('finalizado')
       setSaveStatus('saved')
-      setTimeout(() => setSaveStatus('idle'), 1200)
+      setTimeout(() => {
+        setSaveStatus('idle')
+        // El acta ya quedó guardada en el servidor -- se limpia el borrador
+        // local para que la próxima vez que se abra "Hoja de Devolución"
+        // empiece en blanco, en vez de mostrar los datos de la que ya se
+        // finalizó.
+        limpiarFormulario()
+      }, 1200)
     } catch (err) {
       setSaveStatus('error')
       setErrorGuardado(err.message || 'No se pudo guardar el acta')
@@ -251,7 +268,7 @@ function Devolucion() {
     setNoSerie('')
     setNombreEquipo('')
     setProcesador('')
-    setMemoriaRam('16')
+    setMemoriaRam('16 GB')
     setDiscoTipo('ssd')
     setDiscoCapacidad('')
     setDiaEntrega('__')
@@ -581,15 +598,13 @@ function Devolucion() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="font-label-bold text-label-bold text-on-surface">Memoria RAM</label>
-                  <select
+                  <input
+                    className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
+                    placeholder="Ej. 4 GB, 8 GB, 16 GB..."
+                    type="text"
                     value={memoriaRam}
                     onChange={(e) => setMemoriaRam(e.target.value)}
-                    className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
-                  >
-                    <option value="8">8 GB</option>
-                    <option value="16">16 GB</option>
-                    <option value="32">32 GB</option>
-                  </select>
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="font-label-bold text-label-bold text-on-surface">
