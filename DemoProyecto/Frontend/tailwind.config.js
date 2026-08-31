@@ -37,7 +37,6 @@ export default {
         'secondary-fixed-dim': '#c1c3ca',
         'surface-dim': '#e9eaef',
         'error-container': '#f1dcd9',
-        'on-secondary': '#ffffff',
         'inverse-on-surface': '#f3f4f7',
         'surface-blue': '#f1f2f5',
         'on-primary-fixed': '#1a1a1a',
@@ -73,6 +72,12 @@ export default {
         xl: '1rem',
         full: '9999px',
       },
+      boxShadow: {
+        sm: '0 1px 2px 0 rgb(26 26 26 / 0.05)',
+        DEFAULT: '0 1px 3px 0 rgb(26 26 26 / 0.08), 0 1px 2px -1px rgb(26 26 26 / 0.08)',
+        md: '0 4px 6px -1px rgb(26 26 26 / 0.08), 0 2px 4px -2px rgb(26 26 26 / 0.08)',
+        lg: '0 10px 15px -3px rgb(26 26 26 / 0.08), 0 4px 6px -4px rgb(26 26 26 / 0.08)',
+      },
       spacing: {
         'stack-xs': '4px',
         'container-padding': '16px',
@@ -81,6 +86,7 @@ export default {
         'stack-lg': '24px',
         'drawer-width': '288px',
         'stack-sm': '8px',
+        4.5: '1.125rem',
       },
       fontFamily: {
         'body-lg': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
