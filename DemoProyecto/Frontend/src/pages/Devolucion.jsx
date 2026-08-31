@@ -302,7 +302,7 @@ function Devolucion() {
             <div className="border-b-3 border-primary w-full h-[3px]"></div>
             <div className="p-stack-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary-container rounded flex items-center justify-center text-on-primary">
+                <div className="w-12 h-12 bg-primary rounded flex items-center justify-center text-on-primary">
                   <span
                     className="material-symbols-outlined text-2xl"
                     style={{ fontVariationSettings: "'FILL' 1" }}
@@ -458,7 +458,7 @@ function Devolucion() {
                   onClick={() => setModalidadPaginas(opcion.valor)}
                   className={`px-3 py-1.5 font-label-bold text-label-bold transition-colors ${
                     modalidadPaginas === opcion.valor
-                      ? 'bg-primary-container text-on-primary'
+                      ? 'bg-primary text-on-primary shadow-sm'
                       : 'bg-surface-bright text-on-surface-variant hover:bg-surface-container-low'
                   }`}
                 >
@@ -896,7 +896,7 @@ function Devolucion() {
             <button
               onClick={handleFinalizarDevolucion}
               disabled={saveStatus === 'saving'}
-              className="px-6 py-2 bg-primary-container text-on-primary rounded hover:opacity-90 transition-opacity shadow-sm font-label-bold text-label-bold flex items-center gap-2 disabled:opacity-60"
+              className="px-6 py-2 bg-primary text-on-primary rounded hover:opacity-90 transition-opacity shadow-sm font-label-bold text-label-bold flex items-center gap-2 disabled:opacity-60"
             >
               {saveStatus === 'saving' ? (
                 <span
