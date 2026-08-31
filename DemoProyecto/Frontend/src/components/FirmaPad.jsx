@@ -107,7 +107,7 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
 
   return (
     <div className="flex flex-col gap-2 border border-outline-variant rounded-lg p-3 bg-surface-container-lowest">
-      <div className="flex justify-center gap-2 mb-1 flex-wrap">
+      <div className="flex justify-center gap-1 mb-3 flex-wrap rounded-lg bg-surface-container p-1">
         <button
           type="button"
           onClick={() => {
@@ -115,7 +115,7 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
             setPreviewSubida(null)
           }}
           className={`px-3 py-1 rounded font-label-sm text-label-sm transition-colors ${
-            modo === 'dibujar' ? 'bg-primary-container text-on-primary' : 'text-on-surface-variant'
+            modo === 'dibujar' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
           Dibujar
@@ -127,7 +127,7 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
             limpiarLienzo()
           }}
           className={`px-3 py-1 rounded font-label-sm text-label-sm transition-colors ${
-            modo === 'subir' ? 'bg-primary-container text-on-primary' : 'text-on-surface-variant'
+            modo === 'subir' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
           Subir imagen
@@ -140,7 +140,7 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
             setPreviewSubida(null)
           }}
           className={`px-3 py-1 rounded font-label-sm text-label-sm transition-colors ${
-            modo === 'historico' ? 'bg-primary-container text-on-primary' : 'text-on-surface-variant'
+            modo === 'historico' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
           Registro histórico
