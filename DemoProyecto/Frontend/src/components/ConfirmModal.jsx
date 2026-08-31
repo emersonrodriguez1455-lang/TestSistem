@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { X } from 'lucide-react'
 
 /**
  * Modal de confirmación reutilizable, acorde al estilo de ActaModal
@@ -55,21 +56,21 @@ function ConfirmModal({
   const errorAMostrar = error || errorLocal
   const colorConfirmar =
     variante === 'peligro'
-      ? 'bg-error text-on-primary hover:opacity-90'
-      : 'bg-primary text-on-primary hover:opacity-90'
+      ? 'bg-error text-on-error shadow-sm hover:brightness-110 active:brightness-95'
+      : 'bg-primary text-on-primary shadow-sm hover:brightness-110 active:brightness-95'
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 px-4">
-      <div className="bg-surface-container-lowest w-full max-w-sm rounded-lg shadow-lg border border-outline-variant">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-on-surface/40 px-4">
+      <div className="bg-surface-container-lowest w-full max-w-sm rounded-2xl shadow-lg border border-outline-variant overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
-          <h3 className="font-headline-lg text-headline-lg text-primary">{titulo}</h3>
+          <h3 className="font-headline-lg text-headline-lg text-on-surface">{titulo}</h3>
           <button
             type="button"
             onClick={onCancelar}
             disabled={procesando}
-            className="text-on-surface-variant hover:text-primary disabled:opacity-50"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors disabled:opacity-50"
           >
-            <span className="material-symbols-outlined">close</span>
+            <X className="h-5 w-5" strokeWidth={2} />
           </button>
         </div>
 
@@ -79,14 +80,14 @@ function ConfirmModal({
           )}
 
           {requierePassword && (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1.5">
               <label className="font-label-bold text-label-bold text-on-surface">
                 Tu contraseña
               </label>
               <input
                 type="password"
                 autoFocus
-                className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface"
+                className="h-11 w-full rounded-lg border border-outline-variant bg-surface px-3.5 font-body-md text-body-md text-on-surface transition-colors hover:border-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
                 value={password}
                 disabled={procesando}
                 onChange={(e) => setPassword(e.target.value)}
@@ -95,7 +96,7 @@ function ConfirmModal({
           )}
 
           {errorAMostrar && (
-            <p className="text-error font-label-sm text-label-sm bg-error-container/40 border border-error/30 rounded px-3 py-2">
+            <p className="text-error font-label-sm text-label-sm bg-error-container/40 border border-error/30 rounded-lg px-3 py-2">
               {errorAMostrar}
             </p>
           )}
@@ -105,14 +106,14 @@ function ConfirmModal({
               type="button"
               onClick={onCancelar}
               disabled={procesando}
-              className="px-4 py-2 border border-outline text-on-surface-variant rounded font-label-bold text-label-bold hover:bg-surface-container-low disabled:opacity-60"
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-outline-variant bg-surface px-4 font-label-bold text-label-bold text-on-surface transition-colors hover:bg-surface-container-high disabled:opacity-60"
             >
               {textoCancelar}
             </button>
             <button
               type="submit"
               disabled={procesando}
-              className={`px-4 py-2 rounded font-label-bold text-label-bold disabled:opacity-60 ${colorConfirmar}`}
+              className={`inline-flex h-10 items-center justify-center rounded-lg px-4 font-label-bold text-label-bold transition-all disabled:opacity-60 ${colorConfirmar}`}
             >
               {procesando ? 'Procesando...' : textoConfirmar}
             </button>
