@@ -67,7 +67,6 @@ function Devolucion() {
   // Accesorios: checkboxes + tabla sincronizada (Paso 3)
   const [accesoriosSeleccionados, setAccesoriosSeleccionados] = useState([])
   const [filasAccesorios, setFilasAccesorios] = useState([])
-  const [modalQuitarAccesorio, setModalQuitarAccesorio] = useState(null) // { label, filaId } | null
 
   // Modal de confirmación para descartar el formulario (botón "Cancelar")
   const [modalCancelar, setModalCancelar] = useState(false)
@@ -82,58 +81,29 @@ function Devolucion() {
     'Enero 2026'
   )
 
+  // Cada clic sobre un accesorio agrega una fila nueva de ese tipo -- incluso
+  // si ya está marcado -- para permitir varias unidades iguales (ej. 2
+  // laptops) sin agregar un campo de "cantidad" ni tocar la base de datos.
+  // El checkbox se queda marcado mientras exista al menos una fila de ese
+  // tipo; para quitar una unidad se usa el botón de eliminar de esa fila en
+  // la tabla (no el checkbox).
   function toggleAccesorio(label) {
-    const yaSeleccionado = accesoriosSeleccionados.includes(label)
-
-    if (yaSeleccionado) {
-      setAccesoriosSeleccionados((prev) => prev.filter((a) => a !== label))
-      const fila = filasAccesorios.find((f) => f.accesorioId === label)
-      if (fila) {
-        const tieneDatos = fila.marca || fila.modelo || fila.serie
-        if (tieneDatos) {
-          // Se pide confirmación antes de borrar los datos ya capturados en
-          // la fila (en vez de window.confirm nativo).
-          setModalQuitarAccesorio({ label, filaId: fila.id })
-          return
-        }
-        setFilasAccesorios((prev) => prev.filter((f) => f.id !== fila.id))
-      }
-    } else {
+    if (!accesoriosSeleccionados.includes(label)) {
       setAccesoriosSeleccionados((prev) => [...prev, label])
-      const yaExisteFila = filasAccesorios.some((f) => f.accesorioId === label)
-      if (!yaExisteFila) {
-        setFilasAccesorios((prev) => [
-          ...prev,
-          {
-            id: generarIdFila(),
-            articulo: label === 'Otro' ? '' : label,
-            marca: '',
-            modelo: '',
-            serie: '',
-            estado: 'Usado',
-            origen: 'checkbox',
-            accesorioId: label,
-          },
-        ])
-      }
     }
-  }
-
-  function handleConfirmarQuitarAccesorio() {
-    if (!modalQuitarAccesorio) return
-    setFilasAccesorios((prev) => prev.filter((f) => f.id !== modalQuitarAccesorio.filaId))
-    setModalQuitarAccesorio(null)
-  }
-
-  function handleCancelarQuitarAccesorio() {
-    if (!modalQuitarAccesorio) return
-    // Se conserva la fila con sus datos, pero deja de estar vinculada al checkbox
-    setFilasAccesorios((prev) =>
-      prev.map((f) =>
-        f.id === modalQuitarAccesorio.filaId ? { ...f, accesorioId: null, origen: 'manual' } : f
-      )
-    )
-    setModalQuitarAccesorio(null)
+    setFilasAccesorios((prev) => [
+      ...prev,
+      {
+        id: generarIdFila(),
+        articulo: label === 'Otro' ? '' : label,
+        marca: '',
+        modelo: '',
+        serie: '',
+        estado: 'Usado',
+        origen: 'checkbox',
+        accesorioId: label,
+      },
+    ])
   }
 
   function agregarFilaManual() {
@@ -158,9 +128,16 @@ function Devolucion() {
 
   function eliminarFilaAccesorio(id) {
     const fila = filasAccesorios.find((f) => f.id === id)
-    setFilasAccesorios((prev) => prev.filter((f) => f.id !== id))
+    const nuevasFilas = filasAccesorios.filter((f) => f.id !== id)
+    setFilasAccesorios(nuevasFilas)
     if (fila?.accesorioId) {
-      setAccesoriosSeleccionados((prev) => prev.filter((a) => a !== fila.accesorioId))
+      // Con varias filas del mismo accesorio (Fase A), el checkbox solo se
+      // desmarca cuando ya no queda NINGUNA fila de ese tipo -- antes se
+      // desmarcaba con solo borrar una, aunque quedaran otras.
+      const quedanOtras = nuevasFilas.some((f) => f.accesorioId === fila.accesorioId)
+      if (!quedanOtras) {
+        setAccesoriosSeleccionados((prev) => prev.filter((a) => a !== fila.accesorioId))
+      }
     }
   }
 
@@ -925,21 +902,6 @@ function Devolucion() {
           </div>
         </div>
       </div>
-
-      <ConfirmModal
-        abierto={modalQuitarAccesorio !== null}
-        titulo="Quitar accesorio"
-        mensaje={
-          modalQuitarAccesorio
-            ? `La fila "${modalQuitarAccesorio.label}" ya tiene datos capturados. ¿Deseas eliminarla también?`
-            : ''
-        }
-        textoConfirmar="Eliminar fila"
-        textoCancelar="Conservar fila"
-        variante="peligro"
-        onConfirmar={handleConfirmarQuitarAccesorio}
-        onCancelar={handleCancelarQuitarAccesorio}
-      />
 
       <ConfirmModal
         abierto={modalCancelar}
