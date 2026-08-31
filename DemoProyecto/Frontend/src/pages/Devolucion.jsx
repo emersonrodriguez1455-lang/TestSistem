@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  Truck,
+  Monitor,
   UserRound,
   MonitorSmartphone,
   Mouse,
@@ -299,13 +299,6 @@ function Devolucion() {
 
   return (
     <>
-      {/* Header Actions */}
-      <div className="hidden md:flex justify-between items-center px-stack-lg py-4 border-b border-outline-variant bg-surface-container-lowest sticky top-0 z-30">
-        <div className="font-headline-lg text-headline-lg font-bold text-on-surface">
-          Formulario de Retorno
-        </div>
-      </div>
-
       {/* Scrollable Content Canvas */}
       <div className="flex-1 p-4 md:p-8 custom-scrollbar relative bg-background">
         <div className="max-w-[896px] mx-auto space-y-stack-lg pb-8">
@@ -315,7 +308,7 @@ function Devolucion() {
             <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:justify-between md:p-6">
               <div className="flex items-start gap-4">
                 <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-primary-container text-on-primary-container">
-                  <Truck className="h-7 w-7" strokeWidth={2} aria-hidden="true" />
+                  <Monitor className="h-7 w-7" strokeWidth={2} aria-hidden="true" />
                 </div>
                 <div>
                   <h2 className="font-headline-lg text-headline-lg text-on-surface font-extrabold leading-tight">
