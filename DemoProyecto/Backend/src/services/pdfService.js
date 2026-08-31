@@ -1,4 +1,6 @@
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib')
+const fs = require('fs')
+const path = require('path')
 
 // --- FASE 3: paleta corporativa blanco/negro/gris --- //
 // Misma paleta "ink" monocromática que ya usa el frontend rediseñado
@@ -57,6 +59,26 @@ function envolverTexto(texto, font, size, maxWidth) {
 // (PNG/JPG, ej. "Subir imagen" o el registro histórico) o un SVG vectorial
 // (ej. "Dibujar", Fase 1.2). Devuelve un descriptor uniforme:
 //   { tipo: 'bitmap', imagen } | { tipo: 'vector', pathD, viewBox } | null
+// Logo de la empresa (con nombre "AGROINDUSTRIA LEGUMEX") para el
+// encabezado del PDF -- archivo local en vez de una URL remota, para que la
+// generación del PDF no dependa de que el frontend esté disponible ni de
+// una llamada de red. "Best effort" igual que la firma: si el archivo no
+// está, el PDF se sigue generando sin el logo en vez de romperse.
+const RUTA_LOGO_EMPRESA = path.join(__dirname, '..', 'assets', 'logo-legumex.png')
+let logoEmpresaCache = null
+
+async function obtenerLogoEmpresa(pdfDoc) {
+  try {
+    if (!logoEmpresaCache) {
+      logoEmpresaCache = fs.readFileSync(RUTA_LOGO_EMPRESA)
+    }
+    return await pdfDoc.embedPng(logoEmpresaCache)
+  } catch (err) {
+    console.warn('No se pudo incrustar el logo de la empresa:', err.message)
+    return null
+  }
+}
+
 // Es "best effort": si la URL falta o la descarga/decodificación falla, se
 // devuelve null y el PDF sigue generándose (línea de firma vacía) en vez de
 // romperse.
@@ -120,6 +142,8 @@ async function generarPdfActa(acta) {
   // (etiquetas/valores en Helvetica), sin cambiar ni una palabra del texto.
   const fontConstancia = await pdfDoc.embedFont(StandardFonts.TimesRomanItalic)
 
+  const logo = await obtenerLogoEmpresa(pdfDoc)
+
   // El frontend histórico ha mandado distintos valores para "una hoja"
   // ('una', 'una_hoja', '1_pagina'); se aceptan todos para no depender de
   // una migración de datos y para que nunca vuelva a generar 2 páginas
@@ -127,9 +151,9 @@ async function generarPdfActa(acta) {
   const esUnaHoja = ['una', 'una_hoja', '1_pagina'].includes(acta.modalidad)
 
   if (esUnaHoja) {
-    await construirPaginaUnaHoja(pdfDoc, acta, font, fontBold, fontConstancia)
+    await construirPaginaUnaHoja(pdfDoc, acta, font, fontBold, fontConstancia, logo)
   } else {
-    await construirPaginasDosHojas(pdfDoc, acta, font, fontBold, fontConstancia)
+    await construirPaginasDosHojas(pdfDoc, acta, font, fontBold, fontConstancia, logo)
   }
 
   return pdfDoc.save()
@@ -137,9 +161,24 @@ async function generarPdfActa(acta) {
 
 // --- AUXILIARES DE DIBUJO Y ESTRUCTURA --- //
 
-function dibujarEncabezado(page, font, fontBold, paginaTexto, fechaVigencia = 'Enero 2026') {
+function dibujarEncabezado(page, font, fontBold, paginaTexto, fechaVigencia = 'Enero 2026', logo = null) {
   const { width } = page.getSize()
   const topY = 750
+
+  // Logo de la empresa centrado en el margen superior, POR ENCIMA del
+  // recuadro de encabezado -- no invade ni desplaza ninguna de las 3
+  // columnas existentes (hay ~32pt libres entre el borde de la hoja y el
+  // recuadro, suficiente para un logo pequeño).
+  if (logo) {
+    const alturaLogo = 26
+    const anchoLogo = (logo.width / logo.height) * alturaLogo
+    page.drawImage(logo, {
+      x: width / 2 - anchoLogo / 2,
+      y: 762,
+      width: anchoLogo,
+      height: alturaLogo,
+    })
+  }
 
   // Cuadro Exterior del Encabezado (fondo claro + borde más marcado, como en
   // el formato físico impreso -- imagen de referencia)
@@ -239,7 +278,7 @@ const LIMITE_INFERIOR_TABLA = 175
  * Devuelve { page, y }: la página y la posición donde terminó la tabla, que
  * el llamador debe usar para seguir dibujando (puede ser una página nueva).
  */
-async function dibujarTablaAccesorios(pdfDoc, paginaInicial, accesorios = [], font, fontBold, startY, fechaVigencia) {
+async function dibujarTablaAccesorios(pdfDoc, paginaInicial, accesorios = [], font, fontBold, startY, fechaVigencia, logo = null) {
   let page = paginaInicial
   let y = startY
   const totalFilas = Math.max(accesorios.length, 8)
@@ -259,7 +298,7 @@ async function dibujarTablaAccesorios(pdfDoc, paginaInicial, accesorios = [], fo
       // No cabe otra fila sin invadir la constancia/firmas: se abre página
       // de continuación con el mismo encabezado del documento.
       page = pdfDoc.addPage([612, 792])
-      dibujarEncabezado(page, font, fontBold, 'Continuación', fechaVigencia)
+      dibujarEncabezado(page, font, fontBold, 'Continuación', fechaVigencia, logo)
       y = 690
       dibujarTextoCentrado(page, 'CONTINUACIÓN — DESCRIPCIÓN DE EQUIPO A ENTREGAR', fontBold, 9, 295, y, COLOR_MARCA)
       y -= 20
@@ -393,9 +432,9 @@ async function dibujarConstanciaYFirmas(pdfDoc, page, acta, font, fontBold, font
 
 // --- CONSTRUCCIÓN DE PLANTILLAS --- //
 
-async function construirPaginaUnaHoja(pdfDoc, acta, font, fontBold, fontConstancia) {
+async function construirPaginaUnaHoja(pdfDoc, acta, font, fontBold, fontConstancia, logo = null) {
   const page = pdfDoc.addPage([612, 792]) // Tamaño Carta Standard
-  dibujarEncabezado(page, font, fontBold, '1 - 1', 'Enero 2025')
+  dibujarEncabezado(page, font, fontBold, '1 - 1', 'Enero 2025', logo)
 
   let y = dibujarDatosUsuario(page, acta, font, fontBold, 680)
 
@@ -429,7 +468,7 @@ async function construirPaginaUnaHoja(pdfDoc, acta, font, fontBold, fontConstanc
   // Tabla compacta de accesorios/equipos entregados (pagina automáticamente
   // si hay más artículos de los que caben -- Fase 2.2)
   const resultadoTabla = await dibujarTablaAccesorios(
-    pdfDoc, page, acta.accesorios || [], font, fontBold, y, 'Enero 2025'
+    pdfDoc, page, acta.accesorios || [], font, fontBold, y, 'Enero 2025', logo
   )
 
   // Bloque final de Constancia y Firmas -- se dibuja en la página donde
@@ -437,10 +476,10 @@ async function construirPaginaUnaHoja(pdfDoc, acta, font, fontBold, fontConstanc
   await dibujarConstanciaYFirmas(pdfDoc, resultadoTabla.page, acta, font, fontBold, fontConstancia, resultadoTabla.y)
 }
 
-async function construirPaginasDosHojas(pdfDoc, acta, font, fontBold, fontConstancia) {
+async function construirPaginasDosHojas(pdfDoc, acta, font, fontBold, fontConstancia, logo = null) {
   // --- PÁGINA 1 ---
   const page1 = pdfDoc.addPage([612, 792])
-  dibujarEncabezado(page1, font, fontBold, '1 - 2', 'Enero 2026')
+  dibujarEncabezado(page1, font, fontBold, '1 - 2', 'Enero 2026', logo)
 
   let y1 = dibujarDatosUsuario(page1, acta, font, fontBold, 680)
 
@@ -486,7 +525,7 @@ async function construirPaginasDosHojas(pdfDoc, acta, font, fontBold, fontConsta
 
   // --- PÁGINA 2 ---
   const page2 = pdfDoc.addPage([612, 792])
-  dibujarEncabezado(page2, font, fontBold, '2 - 2', 'Enero 2026')
+  dibujarEncabezado(page2, font, fontBold, '2 - 2', 'Enero 2026', logo)
 
   let y2 = 680
   dibujarTituloSeccion(page2, 'ACCESORIOS', fontBold, y2)
