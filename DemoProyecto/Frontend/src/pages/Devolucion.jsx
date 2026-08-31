@@ -1,4 +1,16 @@
 import { useState } from 'react'
+import {
+  Truck,
+  UserRound,
+  MonitorSmartphone,
+  Mouse,
+  PlusCircle,
+  ListX,
+  X,
+  Lock,
+  CheckCircle2,
+  Loader2,
+} from 'lucide-react'
 import InlineEditableText from '../components/InlineEditableText.jsx'
 import FirmaPad from '../components/FirmaPad.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
@@ -288,95 +300,93 @@ function Devolucion() {
   return (
     <>
       {/* Header Actions */}
-      <div className="hidden md:flex justify-between items-center px-stack-lg py-4 border-b border-outline-variant bg-surface-bright sticky top-0 z-30">
-        <div className="font-headline-lg text-headline-lg font-bold text-primary">
+      <div className="hidden md:flex justify-between items-center px-stack-lg py-4 border-b border-outline-variant bg-surface-container-lowest sticky top-0 z-30">
+        <div className="font-headline-lg text-headline-lg font-bold text-on-surface">
           Formulario de Retorno
         </div>
       </div>
 
       {/* Scrollable Content Canvas */}
-      <div className="flex-1 p-4 md:p-8 custom-scrollbar relative">
+      <div className="flex-1 p-4 md:p-8 custom-scrollbar relative bg-background">
         <div className="max-w-[896px] mx-auto space-y-stack-lg pb-8">
           {/* 1. Header: Official letterhead */}
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
-            <div className="border-b-3 border-primary w-full h-[3px]"></div>
-            <div className="p-stack-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary rounded flex items-center justify-center text-on-primary">
-                  <span
-                    className="material-symbols-outlined text-2xl"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    local_shipping
-                  </span>
+          <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+            <div className="h-1.5 w-full bg-primary" aria-hidden="true" />
+            <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:justify-between md:p-6">
+              <div className="flex items-start gap-4">
+                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-primary-container text-on-primary-container">
+                  <Truck className="h-7 w-7" strokeWidth={2} aria-hidden="true" />
                 </div>
                 <div>
-                  <h2 className="font-headline-lg text-headline-lg text-primary font-bold">
+                  <h2 className="font-headline-lg text-headline-lg text-on-surface font-extrabold leading-tight">
                     HOJA DE DEVOLUCIÓN DE EQUIPO
                   </h2>
-                  <p className="font-body-md text-body-md text-on-surface-variant">
+                  <p className="mt-1 font-body-md text-body-md text-on-surface-variant">
                     Departamento de Tecnologías de la Información
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-right border-l-0 md:border-l border-outline-variant md:pl-6">
-                <div className="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+              <dl className="grid shrink-0 grid-cols-[auto_auto] gap-x-4 gap-y-1.5 text-sm sm:text-right">
+                <dt className="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
                   Código:
-                </div>
-                <div className="font-label-bold text-label-bold text-primary">DEV-EQ-01</div>
-                <div className="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+                </dt>
+                <dd className="font-label-bold text-label-bold text-on-surface">DEV-EQ-01</dd>
+                <dt className="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
                   Fecha Emisión:
-                </div>
-                <InlineEditableText
-                  value={fechaEmision}
-                  onChange={setFechaEmision}
-                  className="font-label-bold text-label-bold text-primary justify-end"
-                  title="Clic para editar la fecha de emisión"
-                />
-                <div className="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+                </dt>
+                <dd>
+                  <InlineEditableText
+                    value={fechaEmision}
+                    onChange={setFechaEmision}
+                    className="font-label-bold text-label-bold text-on-surface justify-end"
+                    title="Clic para editar la fecha de emisión"
+                  />
+                </dd>
+                <dt className="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
                   Vigencia:
-                </div>
-                <InlineEditableText
-                  value={fechaVigencia}
-                  onChange={setFechaVigencia}
-                  className="font-label-bold text-label-bold text-primary justify-end"
-                  title="Clic para editar la fecha de vigencia"
-                />
-              </div>
+                </dt>
+                <dd>
+                  <InlineEditableText
+                    value={fechaVigencia}
+                    onChange={setFechaVigencia}
+                    className="font-label-bold text-label-bold text-on-surface justify-end"
+                    title="Clic para editar la fecha de vigencia"
+                  />
+                </dd>
+              </dl>
             </div>
           </div>
 
           {/* Datos del Usuario */}
-          <section className="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
-            <div className="border-t-[3px] border-primary"></div>
-            <div className="px-stack-md py-3 bg-header-fill border-b border-outline-variant flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary text-sm">person</span>
-              <h3 className="font-label-bold text-label-bold text-primary uppercase tracking-wider">
+          <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+            <header className="flex items-center gap-2.5 border-b border-outline-variant bg-surface-container-low px-5 py-3.5">
+              <UserRound className="h-4.5 w-4.5 text-primary" strokeWidth={2.25} aria-hidden="true" />
+              <h3 className="font-label-bold text-label-bold text-on-surface uppercase tracking-wider">
                 Datos del Usuario
               </h3>
-            </div>
-            <div className="p-stack-md">
+            </header>
+            <div className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-column-gap gap-y-stack-md">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <label className="font-label-bold text-label-bold text-on-surface">
                     Fecha de Devolución
                   </label>
                   <input
-                    className={`w-full bg-surface-bright border rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors ${
-                      errores.fecha ? 'border-error' : 'border-outline'
+                    className={`h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
+                      errores.fecha ? 'border-error' : 'border-outline-variant'
                     }`}
                     type="date"
                     value={fecha}
                     onChange={(e) => setFecha(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1 lg:col-span-2">
+                <div className="flex flex-col gap-1.5 lg:col-span-2">
                   <label className="font-label-bold text-label-bold text-on-surface">
                     Responsable que Entrega
                   </label>
                   <input
-                    className={`w-full bg-surface-bright border rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors ${
-                      errores.responsable ? 'border-error' : 'border-outline'
+                    className={`h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
+                      errores.responsable ? 'border-error' : 'border-outline-variant'
                     }`}
                     placeholder="Nombre completo"
                     type="text"
@@ -384,34 +394,34 @@ function Devolucion() {
                     onChange={(e) => setResponsable(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <label className="font-label-bold text-label-bold text-on-surface">Departamento</label>
                   <input
                     type="text"
                     value={departamento}
                     onChange={(e) => setDepartamento(e.target.value)}
                     placeholder="Área o departamento"
-                    className={`w-full bg-surface-bright border rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors ${
-                      errores.departamento ? 'border-error' : 'border-outline'
+                    className={`h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
+                      errores.departamento ? 'border-error' : 'border-outline-variant'
                     }`}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <label className="font-label-bold text-label-bold text-on-surface">Puesto</label>
                   <input
-                    className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
+                    className="h-11 w-full bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
                     placeholder="Cargo actual"
                     type="text"
                     value={puesto}
                     onChange={(e) => setPuesto(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <label className="font-label-bold text-label-bold text-on-surface">
                     Recibí de
                   </label>
                   <input
-                    className="w-full bg-surface-container-low text-on-surface-variant border border-outline rounded px-3 py-2 font-body-md text-body-md cursor-not-allowed"
+                    className="h-11 w-full bg-surface-container-low text-on-surface-variant border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md cursor-not-allowed"
                     value="AGROINDUSTRIA LEGUMEX, S.A."
                     readOnly
                     type="text"
@@ -423,17 +433,15 @@ function Devolucion() {
                   </label>
                   <div className="flex flex-wrap gap-6">
                     {['Tejar', 'Parramos'].map((opt) => (
-                      <label key={opt} className="flex items-center gap-2 cursor-pointer group">
-                        <div className="relative w-4 h-4 flex items-center justify-center">
-                          <input
-                            checked={planta === opt}
-                            onChange={() => setPlanta(opt)}
-                            className="peer appearance-none w-4 h-4 border border-outline rounded-full checked:border-primary checked:border-[4px] transition-all"
-                            name="planta"
-                            type="radio"
-                          />
-                        </div>
-                        <span className="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">
+                      <label key={opt} className="flex items-center gap-2.5 cursor-pointer group py-1">
+                        <input
+                          checked={planta === opt}
+                          onChange={() => setPlanta(opt)}
+                          className="h-4.5 w-4.5 accent-[#1a1a1a]"
+                          name="planta"
+                          type="radio"
+                        />
+                        <span className="font-body-md text-body-md text-on-surface group-hover:text-on-surface transition-colors">
                           {opt}
                         </span>
                       </label>
@@ -447,7 +455,7 @@ function Devolucion() {
           {/* Control de modalidad */}
           <div className="flex items-center gap-3 px-1">
             <span className="font-label-bold text-label-bold text-on-surface">Formato del acta:</span>
-            <div className="flex rounded overflow-hidden border border-outline">
+            <div className="inline-flex rounded-lg border border-outline-variant bg-surface-container p-1">
               {[
                 { valor: 'una', etiqueta: '1 página' },
                 { valor: 'dos', etiqueta: '2 páginas' },
@@ -456,10 +464,11 @@ function Devolucion() {
                   key={opcion.valor}
                   type="button"
                   onClick={() => setModalidadPaginas(opcion.valor)}
-                  className={`px-3 py-1.5 font-label-bold text-label-bold transition-colors ${
+                  aria-pressed={modalidadPaginas === opcion.valor}
+                  className={`rounded-md px-3.5 py-1.5 font-label-bold text-label-bold transition-colors ${
                     modalidadPaginas === opcion.valor
                       ? 'bg-primary text-on-primary shadow-sm'
-                      : 'bg-surface-bright text-on-surface-variant hover:bg-surface-container-low'
+                      : 'text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
                   {opcion.etiqueta}
@@ -474,25 +483,24 @@ function Devolucion() {
               modalidadPaginas === 'dos' ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
             }`}
           >
-          <section className="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
-            <div className="border-t-[3px] border-primary"></div>
-            <div className="px-stack-md py-3 bg-header-fill border-b border-outline-variant flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary text-sm">devices</span>
-              <h3 className="font-label-bold text-label-bold text-primary uppercase tracking-wider">
+          <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+            <header className="flex items-center gap-2.5 border-b border-outline-variant bg-surface-container-low px-5 py-3.5">
+              <MonitorSmartphone className="h-4.5 w-4.5 text-primary" strokeWidth={2.25} aria-hidden="true" />
+              <h3 className="font-label-bold text-label-bold text-on-surface uppercase tracking-wider">
                 Descripción de Equipo
               </h3>
-            </div>
-            <div className="p-stack-md border-b border-outline-variant bg-surface-blue/30">
+            </header>
+            <div className="p-5 border-b border-outline-variant">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-column-gap gap-y-stack-md">
                 <div className="flex flex-col gap-2">
                   <label className="font-label-bold text-label-bold text-on-surface">Tipo de Equipo</label>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1">
                     {['Laptop', 'Escritorio'].map((opt) => (
-                      <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                      <label key={opt} className="flex items-center gap-2.5 cursor-pointer group py-1">
                         <input
                           checked={tipoEquipo === opt}
                           onChange={() => setTipoEquipo(opt)}
-                          className="appearance-none w-4 h-4 border border-outline rounded-full checked:border-primary checked:border-[4px] transition-all"
+                          className="h-4.5 w-4.5 accent-[#1a1a1a]"
                           name="tipo_equipo"
                           type="radio"
                         />
@@ -503,13 +511,13 @@ function Devolucion() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="font-label-bold text-label-bold text-on-surface">Estado</label>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1">
                     {['Nuevo', 'Usado'].map((opt) => (
-                      <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                      <label key={opt} className="flex items-center gap-2.5 cursor-pointer group py-1">
                         <input
                           checked={estadoEquipo === opt}
                           onChange={() => setEstadoEquipo(opt)}
-                          className="appearance-none w-4 h-4 border border-outline rounded-full checked:border-primary checked:border-[4px] transition-all"
+                          className="h-4.5 w-4.5 accent-[#1a1a1a]"
                           name="estado"
                           type="radio"
                         />
@@ -520,13 +528,13 @@ function Devolucion() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="font-label-bold text-label-bold text-on-surface">Marca</label>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1">
                     {['Original', 'CLON'].map((opt) => (
-                      <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                      <label key={opt} className="flex items-center gap-2.5 cursor-pointer group py-1">
                         <input
                           checked={marcaEquipo === opt}
                           onChange={() => setMarcaEquipo(opt)}
-                          className="appearance-none w-4 h-4 border border-outline rounded-full checked:border-primary checked:border-[4px] transition-all"
+                          className="h-4.5 w-4.5 accent-[#1a1a1a]"
                           name="marca"
                           type="radio"
                         />
@@ -535,7 +543,7 @@ function Devolucion() {
                     ))}
                     {marcaEquipo === 'CLON' && (
                       <input
-                        className="w-full bg-surface-bright border border-outline rounded px-3 py-1.5 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors mt-1"
+                        className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary mt-1"
                         placeholder="Especifique la marca"
                         value={marcaEquipoDetalle}
                         onChange={(e) => setMarcaEquipoDetalle(e.target.value)}
@@ -546,25 +554,25 @@ function Devolucion() {
                 </div>
               </div>
             </div>
-            <div className="p-stack-md">
+            <div className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-column-gap gap-y-stack-md">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <label className="font-label-bold text-label-bold text-on-surface">Modelo</label>
                   <input
-                    className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
+                    className="h-11 w-full bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
                     placeholder="Ej. Latitude 5420"
                     type="text"
                     value={modeloEquipo}
                     onChange={(e) => setModeloEquipo(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <label className="font-label-bold text-label-bold text-on-surface">
                     Número de Serie (S/N)
                   </label>
                   <input
-                    className={`w-full bg-surface-bright border rounded px-3 py-2 font-body-md text-body-md text-on-surface font-mono uppercase focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors ${
-                      errores.equipo ? 'border-error' : 'border-outline'
+                    className={`h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface font-mono uppercase transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
+                      errores.equipo ? 'border-error' : 'border-outline-variant'
                     }`}
                     placeholder="ALFANUMERICO"
                     type="text"
@@ -572,13 +580,13 @@ function Devolucion() {
                     onChange={(e) => setNoSerie(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <label className="font-label-bold text-label-bold text-on-surface">
                     Nombre del Equipo
                   </label>
                   <input
-                    className={`w-full bg-surface-bright border rounded px-3 py-2 font-body-md text-body-md text-on-surface font-mono focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors ${
-                      errores.equipo ? 'border-error' : 'border-outline'
+                    className={`h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface font-mono transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
+                      errores.equipo ? 'border-error' : 'border-outline-variant'
                     }`}
                     placeholder="LGMX-NB-001"
                     type="text"
@@ -586,27 +594,27 @@ function Devolucion() {
                     onChange={(e) => setNombreEquipo(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <label className="font-label-bold text-label-bold text-on-surface">Procesador</label>
                   <input
-                    className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
+                    className="h-11 w-full bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
                     placeholder="Ej. Intel Core i5 11th Gen"
                     type="text"
                     value={procesador}
                     onChange={(e) => setProcesador(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <label className="font-label-bold text-label-bold text-on-surface">Memoria RAM</label>
                   <input
-                    className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
+                    className="h-11 w-full bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
                     placeholder="Ej. 4 GB, 8 GB, 16 GB..."
                     type="text"
                     value={memoriaRam}
                     onChange={(e) => setMemoriaRam(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <label className="font-label-bold text-label-bold text-on-surface">
                     Almacenamiento (Disco)
                   </label>
@@ -614,13 +622,13 @@ function Devolucion() {
                     <select
                       value={discoTipo}
                       onChange={(e) => setDiscoTipo(e.target.value)}
-                      className="w-1/3 bg-surface-bright border border-outline rounded px-2 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
+                      className="h-11 w-1/3 bg-surface border border-outline-variant rounded-lg px-2.5 font-body-md text-body-md text-on-surface transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
                     >
                       <option value="ssd">SSD</option>
                       <option value="hdd">HDD</option>
                     </select>
                     <input
-                      className="w-2/3 bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
+                      className="h-11 w-2/3 bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
                       placeholder="Capacidad (Ej. 512GB)"
                       type="text"
                       value={discoCapacidad}
@@ -634,50 +642,53 @@ function Devolucion() {
           </div>
 
           {/* Accesorios */}
-          <section className="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
-            <div className="border-t-[3px] border-primary"></div>
-            <div className="px-stack-md py-3 bg-header-fill border-b border-outline-variant flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-secondary text-sm">
-                  {modalidadPaginas === 'una' ? 'devices' : 'mouse'}
-                </span>
-                <h3 className="font-label-bold text-label-bold text-primary uppercase tracking-wider">
+          <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant bg-surface-container-low px-5 py-3.5">
+              <div className="flex items-center gap-2.5">
+                {modalidadPaginas === 'una' ? (
+                  <MonitorSmartphone className="h-4.5 w-4.5 text-primary" strokeWidth={2.25} aria-hidden="true" />
+                ) : (
+                  <Mouse className="h-4.5 w-4.5 text-primary" strokeWidth={2.25} aria-hidden="true" />
+                )}
+                <h3 className="font-label-bold text-label-bold text-on-surface uppercase tracking-wider">
                   {modalidadPaginas === 'una' ? 'Descripción de Equipo' : 'Accesorios Devueltos'}
                 </h3>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={agregarFilaManual}
                   type="button"
-                  className="text-secondary hover:text-primary transition-colors flex items-center gap-1 font-label-bold text-label-bold"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-outline-variant bg-surface px-3 py-1.5 font-label-bold text-label-bold text-on-surface transition-colors hover:bg-surface-container-high active:brightness-95"
                 >
-                  <span className="material-symbols-outlined text-sm">add_circle</span> Agregar Fila
+                  <PlusCircle className="h-3.5 w-3.5" strokeWidth={2.5} />
+                  Agregar Fila
                 </button>
                 {filasAccesorios.length > 0 && (
                   <button
                     onClick={vaciarTablaAccesorios}
                     type="button"
-                    className="text-outline hover:text-error transition-colors flex items-center gap-1 font-label-bold text-label-bold"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-outline-variant bg-surface px-3 py-1.5 font-label-bold text-label-bold text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container active:brightness-95"
                   >
-                    <span className="material-symbols-outlined text-sm">playlist_remove</span> Vaciar tabla
+                    <ListX className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    Vaciar tabla
                   </button>
                 )}
               </div>
-            </div>
-            <div className="p-stack-md border-b border-outline-variant bg-surface-blue/30">
-              <p className="font-label-sm text-label-sm text-on-surface-variant uppercase mb-3">
+            </header>
+            <div className="p-5 border-b border-outline-variant">
+              <p className="mb-3 font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">
                 Verificación Rápida
               </p>
-              <div className="flex flex-wrap gap-x-8 gap-y-3">
+              <div className="flex flex-wrap gap-x-5 gap-y-2.5">
                 {ACCESORIOS.map((label) => (
-                  <label key={label} className="flex items-center gap-2 cursor-pointer group">
+                  <label key={label} className="flex items-center gap-2 cursor-pointer group text-sm">
                     <input
                       checked={accesoriosSeleccionados.includes(label)}
                       onChange={() => toggleAccesorio(label)}
-                      className="appearance-none w-4 h-4 border border-outline rounded-sm checked:bg-primary checked:border-primary flex items-center justify-center after:content-['✓'] after:text-white after:text-xs after:hidden checked:after:block transition-colors"
+                      className="h-4.5 w-4.5 rounded accent-[#1a1a1a]"
                       type="checkbox"
                     />
-                    <span className="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">
+                    <span className="font-body-md text-body-md text-on-surface transition-colors">
                       {label}
                     </span>
                   </label>
@@ -685,34 +696,34 @@ function Devolucion() {
               </div>
             </div>
             <div className="w-full overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-[640px] text-left border-collapse text-sm">
                 <thead>
-                  <tr className="bg-surface-container-low border-b border-outline-variant">
-                    <th className="py-2 px-4 font-label-bold text-label-bold text-on-surface-variant uppercase w-12">
+                  <tr className="border-b border-outline-variant text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                    <th className="py-2.5 pl-5 pr-3 font-bold w-12">
                       No.
                     </th>
-                    <th className="py-2 px-4 font-label-bold text-label-bold text-on-surface-variant uppercase">
+                    <th className="py-2.5 pr-3 font-bold">
                       Artículo
                     </th>
-                    <th className="py-2 px-4 font-label-bold text-label-bold text-on-surface-variant uppercase">
+                    <th className="py-2.5 pr-3 font-bold">
                       Marca
                     </th>
-                    <th className="py-2 px-4 font-label-bold text-label-bold text-on-surface-variant uppercase">
+                    <th className="py-2.5 pr-3 font-bold">
                       Modelo
                     </th>
-                    <th className="py-2 px-4 font-label-bold text-label-bold text-on-surface-variant uppercase">
+                    <th className="py-2.5 pr-3 font-bold">
                       No. Serie
                     </th>
-                    <th className="py-2 px-4 font-label-bold text-label-bold text-on-surface-variant uppercase w-32">
+                    <th className="py-2.5 pr-3 font-bold w-32">
                       Estado
                     </th>
-                    <th className="py-2 px-4 w-12"></th>
+                    <th className="py-2.5 pr-5 w-12" />
                   </tr>
                 </thead>
                 <tbody>
                   {filasAccesorios.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="py-4 px-4 text-center text-on-surface-variant font-body-md text-body-md">
+                      <td colSpan={7} className="py-8 px-4 text-center text-on-surface-variant font-body-md text-body-md">
                         Marca un accesorio arriba o usa "Agregar Fila" para empezar.
                       </td>
                     </tr>
@@ -720,14 +731,14 @@ function Devolucion() {
                   {filasAccesorios.map((fila, index) => (
                     <tr
                       key={fila.id}
-                      className="border-b border-outline-variant hover:bg-surface-blue/20 transition-colors group"
+                      className="border-b border-outline-variant last:border-0 hover:bg-surface-container-low transition-colors group"
                     >
-                      <td className="py-2 px-4 font-body-md text-body-md text-on-surface-variant">
+                      <td className="py-2 pl-5 pr-3 font-body-md text-body-md text-on-surface-variant">
                         {index + 1}
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 pr-3">
                         <input
-                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-secondary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
+                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-primary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
                           placeholder={fila.accesorioId === 'Otro' ? 'Especifique el artículo...' : 'Especificar...'}
                           type="text"
                           value={fila.articulo}
@@ -735,50 +746,51 @@ function Devolucion() {
                           readOnly={fila.origen === 'checkbox' && fila.accesorioId !== 'Otro'}
                         />
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 pr-3">
                         <input
-                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-secondary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
+                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-primary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
                           placeholder="..."
                           type="text"
                           value={fila.marca}
                           onChange={(e) => actualizarFilaAccesorio(fila.id, 'marca', e.target.value)}
                         />
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 pr-3">
                         <input
-                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-secondary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
+                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-primary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
                           placeholder="..."
                           type="text"
                           value={fila.modelo}
                           onChange={(e) => actualizarFilaAccesorio(fila.id, 'modelo', e.target.value)}
                         />
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 pr-3">
                         <input
-                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-secondary focus:ring-0 px-1 py-1 font-body-md text-body-md font-mono transition-colors"
+                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-primary focus:ring-0 px-1 py-1 font-body-md text-body-md font-mono transition-colors"
                           placeholder="..."
                           type="text"
                           value={fila.serie}
                           onChange={(e) => actualizarFilaAccesorio(fila.id, 'serie', e.target.value)}
                         />
                       </td>
-                      <td className="py-2 px-4">
+                      <td className="py-2 pr-3">
                         <select
                           value={fila.estado}
                           onChange={(e) => actualizarFilaAccesorio(fila.id, 'estado', e.target.value)}
-                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-secondary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
+                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-primary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
                         >
                           <option>Nuevo</option>
                           <option>Usado</option>
                         </select>
                       </td>
-                      <td className="py-2 px-4 text-center">
+                      <td className="py-2 pr-5">
                         <button
                           type="button"
                           onClick={() => eliminarFilaAccesorio(fila.id)}
-                          className="text-outline hover:text-error opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label={`Quitar fila ${index + 1}`}
+                          className="grid h-8 w-8 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container"
                         >
-                          <span className="material-symbols-outlined text-sm">delete</span>
+                          <X className="h-4 w-4" strokeWidth={2.25} />
                         </button>
                       </td>
                     </tr>
@@ -789,38 +801,37 @@ function Devolucion() {
           </section>
 
           {/* Constancia de Entrega & Observaciones */}
-          <section className="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
-            <div className="border-t-[3px] border-primary"></div>
-            <div className="p-stack-md border-b border-outline-variant">
+          <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+            <div className="p-5 border-b border-outline-variant">
               <label className="font-label-bold text-label-bold text-on-surface block mb-2">
                 Observaciones Generales
               </label>
               <textarea
-                className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors min-h-[100px] resize-y"
+                className="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary min-h-[100px] resize-y"
                 placeholder="Anote cualquier daño estético, fallas reportadas no resueltas, o información relevante sobre el equipo devuelto..."
               ></textarea>
             </div>
-            <div className="p-stack-lg bg-surface-blue/20">
-              <p className="font-body-md text-body-md text-on-surface leading-relaxed mb-8">
+            <div className="p-5 md:p-6">
+              <p className="font-body-md text-body-md text-on-surface leading-relaxed mb-6 md:mb-8">
                 Por este medio se hace constar que el día{' '}
                 <InlineEditableText
                   value={diaEntrega}
                   onChange={setDiaEntrega}
-                  className="text-primary font-bold"
+                  className="text-on-surface font-bold"
                   title="Clic para editar el día"
                 />{' '}
                 del mes{' '}
                 <InlineEditableText
                   value={mesEntrega}
                   onChange={setMesEntrega}
-                  className="text-primary font-bold"
+                  className="text-on-surface font-bold"
                   title="Clic para editar el mes"
                 />{' '}
                 del año{' '}
                 <InlineEditableText
                   value={anioEntrega}
                   onChange={setAnioEntrega}
-                  className="text-primary font-bold"
+                  className="text-on-surface font-bold"
                   title="Clic para editar el año"
                 />
                 {modalidadPaginas === 'una' && (
@@ -829,7 +840,7 @@ function Devolucion() {
                     <InlineEditableText
                       value={dpi}
                       onChange={setDpi}
-                      className="text-primary font-bold"
+                      className="text-on-surface font-bold"
                       title="Clic para editar el DPI"
                     />
                   </>
@@ -838,11 +849,15 @@ function Devolucion() {
                 <InlineEditableText
                   value={nombreEntrega}
                   onChange={setNombreEntrega}
-                  className="text-primary font-bold"
+                  className="text-on-surface font-bold"
                   title="Clic para escribir su nombre"
                 />
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 px-8">
+              {/* En móvil, el grid pasa a 1 columna sin padding lateral extra
+                  para que cada firma aproveche todo el ancho disponible en
+                  vez de dejar un recuadro angosto con espacio muerto a los
+                  costados. */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <FirmaPad
                   titulo="Nombre y Firma de quien Entrega"
                   subtitulo="(Usuario Final)"
@@ -859,7 +874,7 @@ function Devolucion() {
                 />
               </div>
               {(errores.firmaEntrega || errores.firmaRecibe) && (
-                <p className="text-error font-label-sm text-label-sm px-8 mt-2 text-center">
+                <p className="text-error font-label-sm text-label-sm mt-3 text-center">
                   Ambas firmas deben quedar confirmadas para finalizar la devolución.
                 </p>
               )}
@@ -869,7 +884,7 @@ function Devolucion() {
           {estadoActa === 'finalizado' && (
             <div className="flex items-center justify-between bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 font-label-bold text-label-bold">
               <span className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">lock</span>
+                <Lock className="h-4 w-4" strokeWidth={2.25} />
                 Acta finalizada
               </span>
             </div>
@@ -885,28 +900,23 @@ function Devolucion() {
             </p>
           )}
 
-          <div className="flex justify-end gap-4 pt-4 border-t border-outline-variant">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-outline-variant">
             <button
               type="button"
               onClick={handleCancelar}
-              className="px-6 py-2 border border-outline text-on-surface-variant rounded hover:bg-surface-container-low transition-colors font-label-bold text-label-bold"
+              className="inline-flex h-11 items-center justify-center rounded-lg border border-outline-variant bg-surface px-6 font-label-bold text-label-bold text-on-surface transition-colors hover:bg-surface-container-high"
             >
               Cancelar
             </button>
             <button
               onClick={handleFinalizarDevolucion}
               disabled={saveStatus === 'saving'}
-              className="px-6 py-2 bg-primary text-on-primary rounded hover:opacity-90 transition-opacity shadow-sm font-label-bold text-label-bold flex items-center gap-2 disabled:opacity-60"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 font-label-bold text-label-bold text-on-primary shadow-sm transition-all hover:brightness-110 active:brightness-95 disabled:opacity-60"
             >
               {saveStatus === 'saving' ? (
-                <span
-                  className="material-symbols-outlined text-sm animate-spin"
-                  aria-hidden="true"
-                >
-                  progress_activity
-                </span>
+                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} aria-hidden="true" />
               ) : (
-                <span className="material-symbols-outlined text-sm">check_circle</span>
+                <CheckCircle2 className="h-4 w-4" strokeWidth={2.25} aria-hidden="true" />
               )}
               {saveStatus === 'saving'
                 ? 'Guardando...'
