@@ -165,21 +165,6 @@ function dibujarEncabezado(page, font, fontBold, paginaTexto, fechaVigencia = 'E
   const { width } = page.getSize()
   const topY = 750
 
-  // Logo de la empresa centrado en el margen superior, POR ENCIMA del
-  // recuadro de encabezado -- no invade ni desplaza ninguna de las 3
-  // columnas existentes (hay ~32pt libres entre el borde de la hoja y el
-  // recuadro, suficiente para un logo pequeño).
-  if (logo) {
-    const alturaLogo = 26
-    const anchoLogo = (logo.width / logo.height) * alturaLogo
-    page.drawImage(logo, {
-      x: width / 2 - anchoLogo / 2,
-      y: 762,
-      width: anchoLogo,
-      height: alturaLogo,
-    })
-  }
-
   // Cuadro Exterior del Encabezado (fondo claro + borde más marcado, como en
   // el formato físico impreso -- imagen de referencia)
   page.drawRectangle({
@@ -197,11 +182,18 @@ function dibujarEncabezado(page, font, fontBold, paginaTexto, fechaVigencia = 'E
   // DEVOLUCION / Edición-Página" (fila 2), igual que en el físico.
   page.drawLine({ start: { x: 200, y: topY - 18 }, end: { x: width - 40, y: topY - 18 }, strokeWidth: 0.75, color: COLOR_LINEA })
 
-  // Columna 1: Título Departamento
-  page.drawText('DEPARTAMENTO DE TECNOLOGIA DE', { x: 45, y: topY - 6, size: 7, font: fontBold, color: COLOR_MARCA })
-  page.drawText('INFORMACION Y COMUNICACION (TIC)', { x: 45, y: topY - 16, size: 7, font: fontBold, color: COLOR_MARCA })
-  page.drawText('Fecha de Emisión: Enero 2025', { x: 45, y: topY - 33, size: 6.5, font, color: COLOR_TEXTO_SUAVE })
-  page.drawText(`Fecha de Vigencia: ${fechaVigencia}`, { x: 45, y: topY - 43, size: 6.5, font, color: COLOR_TEXTO_SUAVE })
+  // Columna 1: Logo de la empresa arriba, texto del departamento debajo --
+  // misma posición relativa que en la hoja física de referencia (logo
+  // pequeño en la esquina superior izquierda de esta columna).
+  if (logo) {
+    const alturaLogo = 13
+    const anchoLogo = (logo.width / logo.height) * alturaLogo
+    page.drawImage(logo, { x: 45, y: topY - 6, width: anchoLogo, height: alturaLogo })
+  }
+  page.drawText('DEPARTAMENTO DE TECNOLOGIA DE', { x: 45, y: topY - 14, size: 6.5, font: fontBold, color: COLOR_MARCA })
+  page.drawText('INFORMACION Y COMUNICACION (TIC)', { x: 45, y: topY - 23, size: 6.5, font: fontBold, color: COLOR_MARCA })
+  page.drawText('Fecha de Emisión: Enero 2025', { x: 45, y: topY - 32, size: 6, font, color: COLOR_TEXTO_SUAVE })
+  page.drawText(`Fecha de Vigencia: ${fechaVigencia}`, { x: 45, y: topY - 41, size: 6, font, color: COLOR_TEXTO_SUAVE })
 
   // Columna 2: Procedimiento
   dibujarTextoCentrado(page, 'PROCEDIMIENTO', fontBold, 8.5, 290, topY - 8)
