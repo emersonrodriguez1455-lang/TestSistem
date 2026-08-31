@@ -199,13 +199,13 @@ function Auditoria() {
                                         {NOMBRES_CAMPO[campo] || campo}:
                                       </span>
                                       <span className="px-2 py-0.5 rounded bg-error-container text-on-error-container line-through">
-                                        {formatearValor(cambio.anterior)}
+                                        {formatearValor(cambio.antes)}
                                       </span>
                                       <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
                                         arrow_forward
                                       </span>
                                       <span className="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container">
-                                        {formatearValor(cambio.nuevo)}
+                                        {formatearValor(cambio.despues)}
                                       </span>
                                     </div>
                                   ))}
