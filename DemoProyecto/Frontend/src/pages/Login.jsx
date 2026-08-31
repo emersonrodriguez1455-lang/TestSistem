@@ -49,13 +49,12 @@ function Login() {
         <div className="h-[3px] w-full bg-primary" />
 
         <div className="p-stack-lg flex flex-col items-center text-center gap-2">
-          <div className="w-14 h-14 bg-primary rounded flex items-center justify-center text-on-primary mb-2">
-            <span
-              className="material-symbols-outlined text-3xl"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              factory
-            </span>
+          <div className="w-14 h-14 bg-primary rounded flex items-center justify-center text-on-primary mb-2 overflow-hidden">
+            <img
+              src="/logo-legumex.png"
+              alt="Legumex"
+              className="w-full h-full object-contain p-1"
+            />
           </div>
           <h1 className="font-headline-lg text-headline-lg font-bold text-primary">LEGUMEX</h1>
           <p className="font-body-md text-body-md text-on-surface-variant">
@@ -116,6 +115,7 @@ function Login() {
           </p> */}
         </form>
       </div>
+      
     </div>
   )
 }
