@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { FileInput, ClipboardList, ShieldCheck, LogOut, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 
-function NavItem({ to, icon, label, end, onNavigate }) {
+function NavItem({ to, icon: Icon, label, end, onNavigate }) {
   return (
     <NavLink
       to={to}
@@ -9,20 +10,25 @@ function NavItem({ to, icon, label, end, onNavigate }) {
       onClick={onNavigate}
       className={({ isActive }) =>
         [
-          'flex items-center gap-4 px-4 py-3 rounded-lg font-body-md transition-all duration-200 active:translate-x-1 group',
+          'group flex items-center gap-3 min-h-11 px-3 py-2.5 rounded-lg font-body-md transition-colors duration-150',
           isActive
             ? 'bg-primary-container text-on-primary-container font-bold'
             : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface',
         ].join(' ')
       }
     >
-      <span
-        className="material-symbols-outlined group-hover:scale-110 transition-transform"
-        style={{ fontVariationSettings: "'FILL' 0" }}
-      >
-        {icon}
-      </span>
-      <span className="font-label-bold text-label-bold">{label}</span>
+      {({ isActive }) => (
+        <>
+          <Icon
+            className={[
+              'h-5 w-5 shrink-0 transition-transform group-hover:scale-110',
+              isActive ? 'text-primary' : 'text-on-surface-variant group-hover:text-on-surface',
+            ].join(' ')}
+            strokeWidth={2}
+          />
+          <span className="font-label-bold text-label-bold truncate">{label}</span>
+        </>
+      )}
     </NavLink>
   )
 }
@@ -44,82 +50,78 @@ function Sidebar({ abierto, onCerrar }) {
         <div
           onClick={onCerrar}
           aria-hidden="true"
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          className="fixed inset-0 bg-on-surface/40 z-40 md:hidden transition-opacity duration-300"
         />
       )}
 
       <nav
         className={[
-          'flex flex-col py-stack-lg bg-surface-container fixed left-0 top-0 h-full w-drawer-width max-w-[85vw] border-r border-outline-variant z-50',
-          'transition-transform duration-200 ease-out',
+          'flex flex-col bg-surface-container-lowest fixed left-0 top-0 h-full w-drawer-width max-w-[85vw] border-r border-outline-variant z-50',
+          'transition-transform duration-300 ease-out shadow-2xl md:shadow-none',
           abierto ? 'translate-x-0' : '-translate-x-full',
           'md:translate-x-0',
         ].join(' ')}
       >
-        {/* Botón cerrar: solo visible en móvil/tablet pequeña (drawer superpuesto) */}
-        <button
-          onClick={onCerrar}
-          aria-label="Cerrar menú"
-          className="md:hidden self-end mr-4 mb-2 text-on-surface-variant hover:text-primary p-1"
-        >
-          <span className="material-symbols-outlined">close</span>
-        </button>
-
         {/* Header */}
-        <div className="px-stack-lg mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 flex-shrink-0 flex items-center justify-center">
+        <div className="flex items-center justify-between h-20 px-6 border-b border-outline-variant shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="grid h-11 w-11 shrink-0 place-items-center">
               <img
                 src="/logo-legumex-icon.png"
                 alt="Legumex"
-                className="w-full h-full object-contain"
+                className="h-full w-full object-contain"
               />
             </div>
-            <div>
-              <h1 className="font-headline-md text-headline-md font-extrabold text-primary">
+            <div className="min-w-0">
+              <h1 className="font-headline-md text-headline-md font-extrabold text-on-surface leading-tight truncate">
                 Control Operativo
               </h1>
-              <p className="font-label-sm text-label-sm text-on-surface-variant">
-                Administración 
+              <p className="font-label-sm text-label-sm text-on-surface-variant leading-tight">
+                Administración
               </p>
             </div>
           </div>
+          {/* Botón cerrar: solo visible en móvil/tablet pequeña (drawer superpuesto) */}
+          <button
+            onClick={onCerrar}
+            aria-label="Cerrar menú"
+            className="md:hidden grid h-9 w-9 shrink-0 place-items-center rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
+          >
+            <X className="h-5 w-5" strokeWidth={2} />
+          </button>
         </div>
 
         {/* Main Tabs */}
-        <div className="flex-1 overflow-y-auto px-4 space-y-1 custom-scrollbar">
-          <NavItem to="/" icon="assignment_return" label="Hoja de Devolución" end onNavigate={onCerrar} />
-          <NavItem to="/historial" icon="history_edu" label="Historial de Actas" onNavigate={onCerrar} />
-          {isAdmin && <NavItem to="/auditoria" icon="rule_folder" label="Auditoría" onNavigate={onCerrar} />}
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-1 custom-scrollbar">
+          <NavItem to="/" icon={FileInput} label="Hoja de Devolución" end onNavigate={onCerrar} />
+          <NavItem to="/historial" icon={ClipboardList} label="Historial de Actas" onNavigate={onCerrar} />
+          {isAdmin && <NavItem to="/auditoria" icon={ShieldCheck} label="Auditoría" onNavigate={onCerrar} />}
         </div>
 
         {/* Footer: usuario actual + cerrar sesión */}
-        <div className="px-4 mt-auto pt-4 border-t border-outline-variant">
-          <div className="flex items-center gap-3 px-4 py-2 mb-1">
-            <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-bold text-label-bold shrink-0">
+        <div className="px-4 pb-4 pt-4 border-t border-outline-variant shrink-0">
+          <div className="flex items-center gap-3 px-2 py-2 mb-1">
+            <div className="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-bold text-label-bold shrink-0">
               {user?.name?.charAt(0) ?? '?'}
             </div>
             <div className="min-w-0">
               <p className="font-label-bold text-label-bold text-on-surface truncate">{user?.name}</p>
-              <p className="font-label-sm text-label-sm text-on-surface-variant capitalize">
+              <p className="font-label-sm text-label-sm text-on-surface-variant capitalize truncate">
                 {user?.role === 'admin' ? 'Administrador' : 'Usuario'}
               </p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-subtle font-body-md hover:bg-surface-container-highest hover:text-error transition-all duration-200 active:translate-x-1 group"
+            className="w-full flex items-center gap-3 min-h-11 px-3 py-2.5 rounded-lg text-on-surface-variant font-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 group"
           >
-            <span className="material-symbols-outlined group-hover:scale-110 transition-transform">
-              logout
-            </span>
+            <LogOut className="h-5 w-5 shrink-0 transition-transform group-hover:scale-110" strokeWidth={2} />
             <span className="font-label-bold text-label-bold">Cerrar Sesión</span>
           </button>
         </div>
       </nav>
     </>
   )
-  
 }
 
 export default Sidebar
