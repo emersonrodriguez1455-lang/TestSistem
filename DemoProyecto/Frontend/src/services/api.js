@@ -119,6 +119,29 @@ export async function obtenerAuditoria(token) {
   return authRequest('/api/auditoria', token, { method: 'GET' })
 }
 
+// Gestión de usuarios (panel admin) -- Fase 2.
+export async function listarUsuarios(token) {
+  return authRequest('/api/usuarios', token, { method: 'GET' })
+}
+
+export async function crearUsuario(token, payload) {
+  return authRequest('/api/usuarios', token, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function editarUsuario(token, id, payload) {
+  return authRequest(`/api/usuarios/${id}`, token, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function eliminarUsuario(token, id) {
+  return authRequest(`/api/usuarios/${id}`, token, { method: 'DELETE' })
+}
+
 // Descargas de Excel (Fase 8): igual que el PDF, requieren el header
 // Authorization, así que se piden con fetch y se convierten a blob. Además
 // van con POST + contraseña en el body (ConfirmModal), nunca en la URL.
@@ -166,4 +189,8 @@ export default {
   obtenerAuditoria,
   exportarActasExcel,
   exportarAuditoriaExcel,
+  listarUsuarios,
+  crearUsuario,
+  editarUsuario,
+  eliminarUsuario,
 }
