@@ -8,7 +8,7 @@ function NotFound() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background font-body-lg px-4">
       <div className="w-full max-w-sm text-center flex flex-col items-center gap-4">
-        <div className="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center text-on-primary">
+        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-on-primary">
           <span className="material-symbols-outlined text-3xl">search_off</span>
         </div>
         <h1 className="font-headline-lg text-headline-lg font-bold text-primary">
@@ -19,7 +19,7 @@ function NotFound() {
         </p>
         <Link
           to="/"
-          className="mt-2 px-6 py-2.5 bg-primary-container text-on-primary rounded font-label-bold text-label-bold hover:opacity-90 transition-opacity"
+          className="mt-2 px-6 py-2.5 bg-primary text-on-primary rounded font-label-bold text-label-bold hover:opacity-90 transition-opacity"
         >
           Volver al inicio
         </Link>
