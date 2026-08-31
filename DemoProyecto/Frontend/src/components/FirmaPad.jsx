@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import SignatureCanvas from 'react-signature-canvas'
+import { CheckCircle2, Upload } from 'lucide-react'
 
 // --- Firma "Registro histórico / firmado en papel" (Fase 1.3) ---
 // Sin campo de nota (se quitó a pedido -- solo se confirma, sin texto
@@ -82,21 +83,25 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
 
   if (firmaUrl) {
     return (
-      <div className="flex flex-col items-center gap-2 border border-outline-variant rounded-lg p-4 bg-surface-container-low">
-        <img src={firmaUrl} alt={`Firma de ${titulo}`} className="h-20 object-contain" />
-        <div className="flex items-center gap-1 text-secondary font-label-sm text-label-sm">
-          <span className="material-symbols-outlined text-[16px]">check_circle</span>
-          Firma confirmada
+      <div className="flex flex-col rounded-xl border border-outline-variant bg-surface-container-lowest p-3">
+        <div className="grid aspect-[5/2] w-full place-items-center rounded-lg border border-outline-variant bg-surface-container-low p-2">
+          <img src={firmaUrl} alt={`Firma de ${titulo}`} className="max-h-full max-w-full object-contain" />
         </div>
-        <button
-          type="button"
-          onClick={handleReiniciar}
-          className="text-error font-label-sm text-label-sm underline"
-        >
-          Reiniciar firma
-        </button>
-        <div className="text-center">
-          <p className="font-label-bold text-label-bold text-primary uppercase">{titulo}</p>
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+            <CheckCircle2 className="h-3.5 w-3.5 text-on-surface" strokeWidth={2.25} />
+            Firma confirmada
+          </div>
+          <button
+            type="button"
+            onClick={handleReiniciar}
+            className="rounded-md px-2 py-1 font-label-sm text-label-sm text-on-surface-variant underline-offset-2 transition-colors hover:text-error hover:underline"
+          >
+            Reiniciar firma
+          </button>
+        </div>
+        <div className="mt-3 border-t border-outline-variant pt-2.5 text-center">
+          <p className="font-label-bold text-label-bold text-on-surface uppercase tracking-wide">{titulo}</p>
           {subtitulo && (
             <p className="font-label-sm text-label-sm text-on-surface-variant">{subtitulo}</p>
           )}
@@ -106,7 +111,7 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
   }
 
   return (
-    <div className="flex flex-col gap-2 border border-outline-variant rounded-lg p-3 bg-surface-container-lowest">
+    <div className="flex flex-col rounded-xl border border-outline-variant bg-surface-container-lowest p-3">
       <div className="flex justify-center gap-1 mb-3 flex-wrap rounded-lg bg-surface-container p-1">
         <button
           type="button"
@@ -150,30 +155,33 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
       {modo === 'dibujar' && (
         // touch-action: none evita que un trazo con el dedo se interprete
         // como scroll de la página en móvil (Fase 1.1).
+        // aspect-[5/2]: mismo aspecto que el diseño de referencia -- en
+        // móvil aprovecha mejor el ancho disponible en vez de dejar un
+        // cuadro alto y en su mayoría vacío.
         <div
-          className="border border-dashed border-outline rounded bg-white"
+          className="grid aspect-[5/2] w-full place-items-center overflow-hidden rounded-lg border border-dashed border-outline bg-surface"
           style={{ touchAction: 'none' }}
         >
           <SignatureCanvas
             ref={sigCanvasRef}
             penColor="black"
-            canvasProps={{ className: 'w-full h-32', style: { touchAction: 'none' } }}
+            canvasProps={{ className: 'w-full h-full', style: { touchAction: 'none' } }}
             onEnd={() => setVacio(sigCanvasRef.current?.isEmpty() ?? true)}
           />
         </div>
       )}
 
       {modo === 'subir' && (
-        <div className="flex flex-col items-center gap-2 py-2">
+        <div className="grid aspect-[5/2] w-full place-items-center rounded-lg border border-dashed border-outline bg-surface">
           {previewSubida ? (
             <img
               src={previewSubida}
               alt="Firma subida"
-              className="h-24 object-contain border border-outline-variant rounded"
+              className="max-h-full max-w-full object-contain p-2"
             />
           ) : (
-            <label className="cursor-pointer text-secondary font-label-sm text-label-sm flex flex-col items-center gap-1 py-4">
-              <span className="material-symbols-outlined">upload</span>
+            <label className="cursor-pointer text-on-surface-variant font-label-sm text-label-sm flex flex-col items-center gap-1.5 transition-colors hover:text-on-surface">
+              <Upload className="h-5 w-5" strokeWidth={2} />
               Seleccionar imagen de firma
               <input type="file" accept="image/*" className="hidden" onChange={handleArchivo} />
             </label>
@@ -182,7 +190,7 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
       )}
 
       {modo === 'historico' && (
-        <div className="flex flex-col gap-2 py-4 px-2">
+        <div className="grid aspect-[5/2] w-full place-items-center rounded-lg border border-dashed border-outline bg-surface px-4">
           <p className="font-label-sm text-label-sm text-on-surface-variant text-center">
             Usa esta opción cuando el documento ya fue firmado en papel y solo se está migrando el
             registro al sistema (no hay trazo digital que capturar).
@@ -190,27 +198,29 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
         </div>
       )}
 
-      <div className="flex justify-center items-center gap-3 mt-1">
-        {modo === 'dibujar' && (
+      <div className="mt-3 flex items-center justify-between gap-2">
+        {modo === 'dibujar' ? (
           <button
             type="button"
             onClick={limpiarLienzo}
-            className="text-on-surface-variant font-label-sm text-label-sm underline"
+            className="rounded-md px-2 py-1 font-label-sm text-label-sm text-on-surface-variant underline-offset-2 transition-colors hover:text-error hover:underline"
           >
             Borrar trazo
           </button>
+        ) : (
+          <span />
         )}
         <button
           type="button"
           onClick={handleConfirmar}
           disabled={modo !== 'historico' && vacio}
-          className="px-3 py-1.5 bg-secondary text-on-secondary rounded font-label-bold text-label-bold disabled:opacity-40 disabled:cursor-not-allowed"
+          className="rounded-lg bg-surface-container-high px-3 py-1.5 font-label-bold text-label-bold text-on-surface transition-colors hover:bg-surface-container-highest active:brightness-95 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Confirmar firma
         </button>
       </div>
-      <div className="text-center">
-        <p className="font-label-bold text-label-bold text-primary uppercase">{titulo}</p>
+      <div className="mt-3 border-t border-outline-variant pt-2.5 text-center">
+        <p className="font-label-bold text-label-bold text-on-surface uppercase tracking-wide">{titulo}</p>
         {subtitulo && <p className="font-label-sm text-label-sm text-on-surface-variant">{subtitulo}</p>}
       </div>
     </div>
