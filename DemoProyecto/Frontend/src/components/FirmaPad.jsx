@@ -1,69 +1,6 @@
 import { useRef, useState } from 'react'
 import SignatureCanvas from 'react-signature-canvas'
 
-// --- Firma vectorial (Fase 1.2) ---
-// react-signature-canvas expone toData(): los puntos crudos de cada trazo
-// (sin rasterizar). En vez de exportar un PNG, se construye un <path> SVG
-// real a partir de esos puntos -- así el trazo queda como vector (nítido a
-// cualquier zoom) tanto en la vista previa como, ya en el backend, dentro
-// del PDF (pdf-lib -> page.drawSvgPath). No se agrega ninguna dependencia
-// nueva: se usa lo que signature_pad ya entrega.
-function gruposDePuntosASvg(grupos) {
-  let minX = Infinity
-  let minY = Infinity
-  let maxX = -Infinity
-  let maxY = -Infinity
-
-  grupos
-    .filter((g) => g.points && g.points.length > 0)
-    .forEach((g) => {
-      g.points.forEach((p) => {
-        if (p.x < minX) minX = p.x
-        if (p.y < minY) minY = p.y
-        if (p.x > maxX) maxX = p.x
-        if (p.y > maxY) maxY = p.y
-      })
-    })
-
-  if (!Number.isFinite(minX)) return null
-
-  const padding = 6
-  // Se normalizan todas las coordenadas al origen (0,0) -- así el viewBox
-  // siempre arranca en "0 0 w h" y el path se puede anclar exactamente en el
-  // PDF (page.drawSvgPath ancla el (0,0) del path al punto x,y indicado; si
-  // el viewBox no arrancara en 0,0 el trazo quedaría desplazado).
-  const paths = grupos
-    .filter((g) => g.points && g.points.length > 0)
-    .map((g) => {
-      const comandos = g.points.map((p, i) => {
-        const x = p.x - minX + padding
-        const y = p.y - minY + padding
-        return `${i === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`
-      })
-      return comandos.join(' ')
-    })
-
-  const w = maxX - minX + padding * 2
-  const h = maxY - minY + padding * 2
-
-  const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w.toFixed(2)} ${h.toFixed(2)}">` +
-    paths
-      .map(
-        (d) =>
-          `<path d="${d}" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`
-      )
-      .join('') +
-    `</svg>`
-
-  return svg
-}
-
-function svgATextoDataUrl(svgMarkup) {
-  const base64 = btoa(unescape(encodeURIComponent(svgMarkup)))
-  return `data:image/svg+xml;base64,${base64}`
-}
-
 // --- Firma "Registro histórico / firmado en papel" (Fase 1.3) ---
 // Sin campo de nota (se quitó a pedido -- solo se confirma, sin texto
 // personalizado): genera siempre la misma leyenda fija como imagen (PNG),
@@ -121,9 +58,12 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
     let dataUrl = null
     if (modo === 'dibujar') {
       if (!sigCanvasRef.current || sigCanvasRef.current.isEmpty()) return
-      const svg = gruposDePuntosASvg(sigCanvasRef.current.toData())
-      if (!svg) return
-      dataUrl = svgATextoDataUrl(svg)
+      // Se rasteriza el trazo directamente como PNG (antes se exportaba
+      // como SVG vectorial, pero Supabase Storage no lo está sirviendo bien).
+      const canvas = sigCanvasRef.current.getTrimmedCanvas
+        ? sigCanvasRef.current.getTrimmedCanvas()
+        : sigCanvasRef.current.getCanvas()
+      dataUrl = canvas.toDataURL('image/png')
     } else if (modo === 'subir') {
       if (!previewSubida) return
       dataUrl = previewSubida
