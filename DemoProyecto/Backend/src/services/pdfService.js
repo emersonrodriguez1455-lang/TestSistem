@@ -1,15 +1,16 @@
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib')
 
-// --- FASE 3: paleta y helpers tipográficos --- //
-// Verde oscuro tomado del logo de AGROINDUSTRIA LEGUMEX (imagen de
-// referencia) -- se usa como acento de marca en encabezados y títulos de
-// sección, en vez del negro plano que tenía el PDF antes. No cambia
-// estructura ni datos, solo jerarquía visual.
-const COLOR_MARCA = rgb(0.09, 0.32, 0.18)
-const COLOR_TEXTO_SUAVE = rgb(0.35, 0.35, 0.35)
-const COLOR_LINEA = rgb(0.55, 0.55, 0.55)
-const COLOR_FONDO_SECCION = rgb(0.94, 0.96, 0.94)
-const COLOR_FILA_PAR = rgb(0.97, 0.97, 0.97)
+// --- FASE 3: paleta corporativa blanco/negro/gris --- //
+// Misma paleta "ink" monocromática que ya usa el frontend rediseñado
+// (tailwind.config.js: primary #1a1a1a, secondary #5c5f68, outline #a9adb9,
+// surface-container-low #fafbfc, surface-container-high #eaebf0). Se
+// reemplaza el verde institucional anterior -- no cambia estructura,
+// medidas ni contenido del PDF, solo la paleta.
+const COLOR_MARCA = rgb(0.102, 0.102, 0.102) // #1a1a1a (primary)
+const COLOR_TEXTO_SUAVE = rgb(0.361, 0.373, 0.408) // #5c5f68 (secondary)
+const COLOR_LINEA = rgb(0.663, 0.678, 0.725) // #a9adb9 (outline)
+const COLOR_FONDO_SECCION = rgb(0.918, 0.922, 0.941) // #eaebf0 (surface-container-high)
+const COLOR_FILA_PAR = rgb(0.980, 0.984, 0.988) // #fafbfc (surface-container-low)
 
 // Centra un texto horizontalmente respecto a un punto xCentro (útil para
 // títulos de sección, que antes tenían posiciones "a ojo" que no quedaban
