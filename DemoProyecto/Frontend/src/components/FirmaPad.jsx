@@ -65,10 +65,11 @@ function svgATextoDataUrl(svgMarkup) {
 }
 
 // --- Firma "Registro histórico / firmado en papel" (Fase 1.3) ---
-// No hay trazo que capturar: se genera una imagen (PNG) con la leyenda, para
-// reutilizar exactamente el mismo pipeline de subida/embebido que ya existe
-// para las otras dos opciones, sin tocar backend ni base de datos.
-function notaHistoricaAPng(nota) {
+// Sin campo de nota (se quitó a pedido -- solo se confirma, sin texto
+// personalizado): genera siempre la misma leyenda fija como imagen (PNG),
+// para reutilizar el mismo pipeline de subida/embebido que las otras dos
+// opciones, sin tocar backend ni base de datos.
+function notaHistoricaAPng() {
   const canvas = document.createElement('canvas')
   canvas.width = 480
   canvas.height = 120
@@ -84,8 +85,7 @@ function notaHistoricaAPng(nota) {
   ctx.fillText('Firmado en documento físico', canvas.width / 2, 55)
   ctx.font = '14px sans-serif'
   ctx.fillStyle = '#666666'
-  const texto = nota?.trim() ? nota.trim() : 'Registro migrado / archivado en papel'
-  ctx.fillText(texto.slice(0, 60), canvas.width / 2, 85)
+  ctx.fillText('Registro migrado / archivado en papel', canvas.width / 2, 85)
   return canvas.toDataURL('image/png')
 }
 
@@ -99,7 +99,6 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
   const sigCanvasRef = useRef(null)
   const [modo, setModo] = useState('dibujar') // 'dibujar' | 'subir' | 'historico'
   const [previewSubida, setPreviewSubida] = useState(null)
-  const [notaHistorica, setNotaHistorica] = useState('')
   const [vacio, setVacio] = useState(true)
 
   function limpiarLienzo() {
@@ -129,7 +128,7 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
       if (!previewSubida) return
       dataUrl = previewSubida
     } else {
-      dataUrl = notaHistoricaAPng(notaHistorica)
+      dataUrl = notaHistoricaAPng()
     }
     onConfirmar(dataUrl)
   }
@@ -137,7 +136,6 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
   function handleReiniciar() {
     limpiarLienzo()
     setPreviewSubida(null)
-    setNotaHistorica('')
     setVacio(true)
     onReiniciar()
   }
@@ -244,18 +242,11 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
       )}
 
       {modo === 'historico' && (
-        <div className="flex flex-col gap-2 py-2 px-2">
-          <p className="font-label-sm text-label-sm text-on-surface-variant">
+        <div className="flex flex-col gap-2 py-4 px-2">
+          <p className="font-label-sm text-label-sm text-on-surface-variant text-center">
             Usa esta opción cuando el documento ya fue firmado en papel y solo se está migrando el
             registro al sistema (no hay trazo digital que capturar).
           </p>
-          <input
-            type="text"
-            value={notaHistorica}
-            onChange={(e) => setNotaHistorica(e.target.value)}
-            placeholder="Nota opcional (ej. folio físico archivado en RRHH)"
-            className="w-full bg-surface-bright border border-outline rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors"
-          />
         </div>
       )}
 
