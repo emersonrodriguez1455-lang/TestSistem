@@ -68,11 +68,11 @@ function Sidebar({ abierto, onCerrar }) {
         {/* Header */}
         <div className="px-stack-lg mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-primary rounded flex items-center justify-center text-on-primary overflow-hidden">
+            <div className="w-11 h-11 flex-shrink-0 flex items-center justify-center">
               <img
-                src="/logo-legumex.png"
+                src="/logo-legumex-icon.png"
                 alt="Legumex"
-                className="w-full h-full object-contain p-0.5"
+                className="w-full h-full object-contain"
               />
             </div>
             <div>
@@ -115,12 +115,11 @@ function Sidebar({ abierto, onCerrar }) {
             </span>
             <span className="font-label-bold text-label-bold">Cerrar Sesión</span>
           </button>
-
-          
         </div>
       </nav>
     </>
   )
+  
 }
 
 export default Sidebar
