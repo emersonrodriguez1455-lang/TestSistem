@@ -11,6 +11,7 @@ import {
   X,
   Lock,
   CheckCircle2,
+  PackageCheck,
   Loader2,
 } from 'lucide-react'
 import InlineEditableText from '../components/InlineEditableText.jsx'
@@ -876,22 +877,15 @@ function Devolucion() {
       {/* 7. Barra de acciones fija. Siempre visible y siempre dice en qué
           estado está el acta y qué le falta -- antes los botones vivían al
           final del scroll y los requisitos solo aparecían al fallar. */}
-      <div className="sticky bottom-0 z-30 border-t border-outline-variant bg-surface-container-lowest px-4 py-3 shadow-[0_-1px_2px_rgba(26,26,26,0.05)] md:px-8">
+      <div className="z-30 border-t border-outline-variant bg-surface-container-lowest px-4 py-3 shadow-[0_-1px_2px_rgba(26,26,26,0.05)] md:sticky md:bottom-0 md:px-8">
         <div className="mx-auto flex max-w-[896px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="inline-flex items-center gap-2 rounded-full border border-outline-variant px-2.5 py-1 font-label-bold text-label-bold text-on-surface">
-              {estadoActa === 'finalizado' ? (
-                <>
-                  <Lock className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
-                  Acta finalizada
-                </>
-              ) : (
-                <>
-                  <span className="h-1.5 w-1.5 rounded-full bg-outline" aria-hidden="true" />
-                  Borrador
-                </>
-              )}
-            </span>
+            {estadoActa === 'finalizado' && (
+              <span className="inline-flex items-center gap-2 rounded-full border border-outline-variant px-2.5 py-1 font-label-bold text-label-bold text-on-surface">
+                <Lock className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
+                Acta finalizada
+              </span>
+            )}
             <span className="font-label-sm text-label-sm text-on-surface-variant">
               {estadoActa === 'finalizado'
                 ? 'Guardada en el servidor'
@@ -916,7 +910,7 @@ function Devolucion() {
               {saveStatus === 'saving' ? (
                 <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} aria-hidden="true" />
               ) : (
-                <CheckCircle2 className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+                <PackageCheck className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
               )}
               {saveStatus === 'saving'
                 ? 'Guardando...'
