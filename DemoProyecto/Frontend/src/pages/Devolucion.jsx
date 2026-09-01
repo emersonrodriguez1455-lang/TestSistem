@@ -113,15 +113,6 @@ function Devolucion() {
   const [fechaEmision, setFechaEmision] = useLocalStorageState('legumex_fecha_emision', 'Enero 2025')
   const [fechaVigencia, setFechaVigencia] = useLocalStorageState('legumex_fecha_vigencia', 'Enero 2026')
 
-  // Resumen de lo que falta -- alimenta la barra de acciones fija, para que el
-  // usuario no descubra los requisitos hasta que pulsa "Finalizar".
-  const pendientes = []
-  if (!responsable.trim()) pendientes.push('responsable')
-  if (!departamento.trim()) pendientes.push('departamento')
-  if (!firmaEntrega || !firmaRecibe) {
-    pendientes.push(!firmaEntrega && !firmaRecibe ? '2 firmas' : '1 firma')
-  }
-
   function toggleAccesorio(label) {
     if (!accesoriosSeleccionados.includes(label)) {
       setAccesoriosSeleccionados((prev) => [...prev, label])
@@ -874,9 +865,8 @@ function Devolucion() {
         </div>
       </div>
 
-      {/* 7. Barra de acciones fija. Siempre visible y siempre dice en qué
-          estado está el acta y qué le falta -- antes los botones vivían al
-          final del scroll y los requisitos solo aparecían al fallar. */}
+      {/* 7. Barra de acciones fija. Siempre visible -- antes los botones vivían
+          al final del scroll. */}
       <div className="z-30 border-t border-outline-variant bg-surface-container-lowest px-4 py-3 shadow-[0_-1px_2px_rgba(26,26,26,0.05)] md:sticky md:bottom-0 md:px-8">
         <div className="mx-auto flex max-w-[896px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -886,13 +876,6 @@ function Devolucion() {
                 Acta finalizada
               </span>
             )}
-            <span className="font-label-sm text-label-sm text-on-surface-variant">
-              {estadoActa === 'finalizado'
-                ? 'Guardada en el servidor'
-                : pendientes.length > 0
-                ? `Faltan: ${pendientes.join(' · ')}`
-                : 'Lista para finalizar'}
-            </span>
           </div>
           <div className="flex flex-col-reverse gap-3 sm:flex-row">
             <button
