@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import {
-  Monitor,
   UserRound,
   MonitorSmartphone,
   Mouse,
+  MessageSquareText,
+  FileSignature,
   PlusCircle,
   ListX,
+  PackageOpen,
   X,
   Lock,
   CheckCircle2,
@@ -31,6 +33,29 @@ const ACCESORIOS = [
   'Celular',
 ]
 
+// Clases compartidas: un solo lugar donde vive la receta de input/label, para
+// que las tres secciones del formulario no se desincronicen con el tiempo.
+const INPUT_BASE =
+  'h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary'
+const LABEL = 'font-label-bold text-label-bold text-on-surface'
+
+// Encabezado de sección. TODAS las secciones lo usan -- antes "Observaciones
+// Generales" era la única que no lo tenía y quedaba como un campo huérfano
+// dentro de la tarjeta de firmas.
+function EncabezadoSeccion({ icon: Icon, titulo, children }) {
+  return (
+    <header className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant bg-surface-container-low px-5 py-3">
+      <div className="flex items-center gap-2.5">
+        <Icon className="h-4.5 w-4.5 text-primary" strokeWidth={1.5} aria-hidden="true" />
+        <h3 className="font-label-bold text-label-bold text-on-surface uppercase tracking-wider">
+          {titulo}
+        </h3>
+      </div>
+      {children}
+    </header>
+  )
+}
+
 let contadorFilas = 0
 function generarIdFila() {
   contadorFilas += 1
@@ -41,25 +66,16 @@ function Devolucion() {
   const { token } = useAuth()
   const [saveStatus, setSaveStatus] = useState('idle') // idle | saving | saved | error
   const [errorGuardado, setErrorGuardado] = useState('')
-  // Nuevo: estos campos ya no usan useState -- usan useLocalStorageState
-  // (el mismo hook que ya usaban fechaEmision/fechaVigencia) para que, si el
-  // usuario ya llenó datos (incluida una firma ya confirmada) y sale de la
-  // página por accidente, los datos sigan ahí al volver a entrar en vez de
-  // perderse. El prefijo "devolucion:" agrupa todas las claves para poder
-  // limpiarlas juntas al finalizar o cancelar (ver limpiarFormulario).
   const [estadoActa, setEstadoActa] = useLocalStorageState('devolucion:estadoActa', 'borrador') // borrador | finalizado
   const [errores, setErrores] = useState({})
-  const [firmaEntrega, setFirmaEntrega] = useLocalStorageState('devolucion:firmaEntrega', null) // base64 o null
+  const [firmaEntrega, setFirmaEntrega] = useLocalStorageState('devolucion:firmaEntrega', null)
   const [firmaRecibe, setFirmaRecibe] = useLocalStorageState('devolucion:firmaRecibe', null)
 
-  // Datos del Usuario (necesarios para validar al Finalizar)
+  // Datos del Usuario
   const [fecha, setFecha] = useLocalStorageState('devolucion:fecha', '2024-10-24')
   const [responsable, setResponsable] = useLocalStorageState('devolucion:responsable', '')
   const [departamento, setDepartamento] = useLocalStorageState('devolucion:departamento', '')
   const [puesto, setPuesto] = useLocalStorageState('devolucion:puesto', '')
-  // DPI: solo se usa dentro de la frase de constancia cuando el acta es de
-  // "1 página" (ver formato físico) -- ya no es un input aparte en "Datos
-  // del Usuario".
   const [dpi, setDpi] = useLocalStorageState('devolucion:dpi', '(clic para escribir su DPI)')
   const [planta, setPlanta] = useLocalStorageState('devolucion:planta', 'Tejar')
 
@@ -72,43 +88,39 @@ function Devolucion() {
   const [noSerie, setNoSerie] = useLocalStorageState('devolucion:noSerie', '')
   const [nombreEquipo, setNombreEquipo] = useLocalStorageState('devolucion:nombreEquipo', '')
   const [procesador, setProcesador] = useLocalStorageState('devolucion:procesador', '')
-  // Memoria RAM: antes era un <select> con solo 8/16/32 GB fijos (le
-  // faltaba, por ejemplo, 4 GB). Pasa a ser texto libre (ver el <input> más
-  // abajo) porque el valor "fluctúa" -- distintas laptops traen distintas
-  // cantidades y una lista fija siempre se va a quedar corta.
   const [memoriaRam, setMemoriaRam] = useLocalStorageState('devolucion:memoriaRam', '16 GB')
   const [discoTipo, setDiscoTipo] = useLocalStorageState('devolucion:discoTipo', 'ssd')
   const [discoCapacidad, setDiscoCapacidad] = useLocalStorageState('devolucion:discoCapacidad', '')
 
-  // Constancia: campos inline (Paso 2)
+  // Observaciones: antes el <textarea> no estaba conectado a ningún estado --
+  // lo que se escribía se perdía al recargar y nunca llegaba al acta.
+  const [observaciones, setObservaciones] = useLocalStorageState('devolucion:observaciones', '')
+
+  // Constancia: campos inline
   const [diaEntrega, setDiaEntrega] = useLocalStorageState('devolucion:diaEntrega', '__')
   const [mesEntrega, setMesEntrega] = useLocalStorageState('devolucion:mesEntrega', '__')
   const [anioEntrega, setAnioEntrega] = useLocalStorageState('devolucion:anioEntrega', '____')
   const [nombreEntrega, setNombreEntrega] = useLocalStorageState('devolucion:nombreEntrega', '(clic para escribir su nombre)')
 
-  // Accesorios: checkboxes + tabla sincronizada (Paso 3)
+  // Accesorios: checkboxes + tabla sincronizada
   const [accesoriosSeleccionados, setAccesoriosSeleccionados] = useLocalStorageState('devolucion:accesoriosSeleccionados', [])
   const [filasAccesorios, setFilasAccesorios] = useLocalStorageState('devolucion:filasAccesorios', [])
 
-  // Modal de confirmación para descartar el formulario (botón "Cancelar")
   const [modalCancelar, setModalCancelar] = useState(false)
   const [cancelando, setCancelando] = useState(false)
 
-  const [fechaEmision, setFechaEmision] = useLocalStorageState(
-    'legumex_fecha_emision',
-    'Enero 2025'
-  )
-  const [fechaVigencia, setFechaVigencia] = useLocalStorageState(
-    'legumex_fecha_vigencia',
-    'Enero 2026'
-  )
+  const [fechaEmision, setFechaEmision] = useLocalStorageState('legumex_fecha_emision', 'Enero 2025')
+  const [fechaVigencia, setFechaVigencia] = useLocalStorageState('legumex_fecha_vigencia', 'Enero 2026')
 
-  // Cada clic sobre un accesorio agrega una fila nueva de ese tipo -- incluso
-  // si ya está marcado -- para permitir varias unidades iguales (ej. 2
-  // laptops) sin agregar un campo de "cantidad" ni tocar la base de datos.
-  // El checkbox se queda marcado mientras exista al menos una fila de ese
-  // tipo; para quitar una unidad se usa el botón de eliminar de esa fila en
-  // la tabla (no el checkbox).
+  // Resumen de lo que falta -- alimenta la barra de acciones fija, para que el
+  // usuario no descubra los requisitos hasta que pulsa "Finalizar".
+  const pendientes = []
+  if (!responsable.trim()) pendientes.push('responsable')
+  if (!departamento.trim()) pendientes.push('departamento')
+  if (!firmaEntrega || !firmaRecibe) {
+    pendientes.push(!firmaEntrega && !firmaRecibe ? '2 firmas' : '1 firma')
+  }
+
   function toggleAccesorio(label) {
     if (!accesoriosSeleccionados.includes(label)) {
       setAccesoriosSeleccionados((prev) => [...prev, label])
@@ -153,9 +165,6 @@ function Devolucion() {
     const nuevasFilas = filasAccesorios.filter((f) => f.id !== id)
     setFilasAccesorios(nuevasFilas)
     if (fila?.accesorioId) {
-      // Con varias filas del mismo accesorio (Fase A), el checkbox solo se
-      // desmarca cuando ya no queda NINGUNA fila de ese tipo -- antes se
-      // desmarcaba con solo borrar una, aunque quedaran otras.
       const quedanOtras = nuevasFilas.some((f) => f.accesorioId === fila.accesorioId)
       if (!quedanOtras) {
         setAccesoriosSeleccionados((prev) => prev.filter((a) => a !== fila.accesorioId))
@@ -163,17 +172,12 @@ function Devolucion() {
     }
   }
 
-  // Vacía toda la tabla de un solo clic (sin modal de confirmación, según lo
-  // acordado). Limpia tanto las filas como los checkboxes de verificación
-  // rápida, para que ambos queden sincronizados.
   function vaciarTablaAccesorios() {
     setFilasAccesorios([])
     setAccesoriosSeleccionados([])
   }
 
   async function handleFinalizarDevolucion() {
-    // Bloqueo de doble submit a nivel de función (además del botón
-    // deshabilitado): si ya hay un guardado en curso, se ignora el clic.
     if (saveStatus === 'saving') return
 
     const nuevosErrores = {}
@@ -197,8 +201,6 @@ function Devolucion() {
         responsable,
         departamento,
         puesto,
-        // NOTA (Fase 3): el backend (actasController.js) todavía no guarda
-        // este campo -- ver reporte de la fase para el detalle.
         dpi,
         planta,
         modalidad: modalidadPaginas,
@@ -211,6 +213,7 @@ function Devolucion() {
         procesador,
         memoria_ram: memoriaRam || '',
         disco_duro: discoCapacidad ? `${discoTipo.toUpperCase()} ${discoCapacidad}` : '',
+        observaciones,
         borrador: false,
         firma_entrega_base64: firmaEntrega,
         firma_recibe_base64: firmaRecibe,
@@ -226,10 +229,6 @@ function Devolucion() {
       setSaveStatus('saved')
       setTimeout(() => {
         setSaveStatus('idle')
-        // El acta ya quedó guardada en el servidor -- se limpia el borrador
-        // local para que la próxima vez que se abra "Hoja de Devolución"
-        // empiece en blanco, en vez de mostrar los datos de la que ya se
-        // finalizó.
         limpiarFormulario()
       }, 1200)
     } catch (err) {
@@ -244,6 +243,7 @@ function Devolucion() {
       departamento ||
       noSerie.trim() ||
       nombreEquipo.trim() ||
+      observaciones.trim() ||
       filasAccesorios.length > 0
 
     if (hayDatos) {
@@ -255,8 +255,6 @@ function Devolucion() {
   }
 
   async function handleConfirmarCancelar() {
-    // Breve estado de carga antes de limpiar, para dar feedback visual de
-    // que la acción se está procesando.
     setCancelando(true)
     await new Promise((resolve) => setTimeout(resolve, 400))
     limpiarFormulario()
@@ -283,6 +281,7 @@ function Devolucion() {
     setMemoriaRam('16 GB')
     setDiscoTipo('ssd')
     setDiscoCapacidad('')
+    setObservaciones('')
     setDiaEntrega('__')
     setMesEntrega('__')
     setAnioEntrega('____')
@@ -299,33 +298,40 @@ function Devolucion() {
 
   return (
     <>
-      {/* Scrollable Content Canvas */}
       <div className="flex-1 p-4 md:p-8 custom-scrollbar relative bg-background">
-        <div className="max-w-[896px] mx-auto space-y-stack-lg pb-8">
-          {/* 1. Header: Official letterhead */}
+        <div className="max-w-[896px] mx-auto space-y-stack-lg pb-4">
+          {/* 1. Membrete del acta.
+              Sin la barra negra decorativa de 6px (no comunicaba nada) y con
+              el logo de la empresa en lugar del ícono genérico de monitor. */}
           <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
-            <div className="h-1.5 w-full bg-primary" aria-hidden="true" />
             <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:justify-between md:p-6">
               <div className="flex items-start gap-4">
-                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-primary-container text-on-primary-container">
-                  <Monitor className="h-7 w-7" strokeWidth={2} aria-hidden="true" />
+                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-outline-variant bg-surface p-1.5">
+                  <img
+                    src="/logo-legumex-icon.png"
+                    alt="Agroindustria Legumex"
+                    className="h-full w-full object-contain"
+                  />
                 </div>
                 <div>
-                  <h2 className="font-headline-lg text-headline-lg text-on-surface font-extrabold leading-tight">
-                    HOJA DE DEVOLUCIÓN DE EQUIPO
+                  <p className="font-label-sm text-label-sm uppercase tracking-[0.12em] text-on-surface-variant">
+                    Agroindustria Legumex, S.A.
+                  </p>
+                  <h2 className="mt-1 font-headline-lg text-headline-lg text-on-surface font-extrabold leading-tight">
+                    Hoja de Devolución de Equipo
                   </h2>
                   <p className="mt-1 font-body-md text-body-md text-on-surface-variant">
                     Departamento de Tecnologías de la Información
                   </p>
                 </div>
               </div>
-              <dl className="grid shrink-0 grid-cols-[auto_auto] gap-x-4 gap-y-1.5 text-sm sm:text-right">
+              <dl className="grid shrink-0 grid-cols-[auto_auto] items-baseline gap-x-4 gap-y-1.5 sm:text-right">
                 <dt className="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
-                  Código:
+                  Código
                 </dt>
-                <dd className="font-label-bold text-label-bold text-on-surface">DEV-EQ-01</dd>
+                <dd className="font-mono text-label-bold text-on-surface">DEV-EQ-01</dd>
                 <dt className="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
-                  Fecha Emisión:
+                  Emisión
                 </dt>
                 <dd>
                   <InlineEditableText
@@ -336,7 +342,7 @@ function Devolucion() {
                   />
                 </dd>
                 <dt className="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
-                  Vigencia:
+                  Vigencia
                 </dt>
                 <dd>
                   <InlineEditableText
@@ -348,195 +354,166 @@ function Devolucion() {
                 </dd>
               </dl>
             </div>
+
+            {/* Formato del acta: es una propiedad del documento, así que vive
+                dentro del membrete. Antes flotaba suelto entre dos tarjetas,
+                sin contenedor ni encabezado que lo explicara. */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant bg-surface-container-low px-5 py-3 md:px-6">
+              <div>
+                <p className="font-label-bold text-label-bold text-on-surface">Formato del acta</p>
+                <p className="font-label-sm text-label-sm text-on-surface-variant">
+                  {modalidadPaginas === 'dos'
+                    ? 'Incluye la ficha técnica completa del equipo.'
+                    : 'Versión corta: solo accesorios y constancia con DPI.'}
+                </p>
+              </div>
+              <div className="inline-flex rounded-lg border border-outline-variant bg-surface p-1">
+                {[
+                  { valor: 'una', etiqueta: '1 página' },
+                  { valor: 'dos', etiqueta: '2 páginas' },
+                ].map((opcion) => (
+                  <button
+                    key={opcion.valor}
+                    type="button"
+                    onClick={() => setModalidadPaginas(opcion.valor)}
+                    aria-pressed={modalidadPaginas === opcion.valor}
+                    className={`rounded-md px-3.5 py-1.5 font-label-bold text-label-bold transition-colors ${
+                      modalidadPaginas === opcion.valor
+                        ? 'bg-primary text-on-primary shadow-sm'
+                        : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                  >
+                    {opcion.etiqueta}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Datos del Usuario */}
+          {/* 2. Datos del Usuario -- rejilla de 12 columnas.
+              Fila 1: 4 + 8. Fila 2: 4 + 4 + 4. Ahora los bordes de columna
+              coinciden entre filas (antes eran 1/3+2/3 contra tres tercios
+              con gaps distintos, y nada alineaba). */}
           <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
-            <header className="flex items-center gap-2.5 border-b border-outline-variant bg-surface-container-low px-5 py-3.5">
-              <UserRound className="h-4.5 w-4.5 text-primary" strokeWidth={2.25} aria-hidden="true" />
-              <h3 className="font-label-bold text-label-bold text-on-surface uppercase tracking-wider">
-                Datos del Usuario
-              </h3>
-            </header>
-            <div className="p-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-column-gap gap-y-stack-md">
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-bold text-label-bold text-on-surface">
-                    Fecha de Devolución
-                  </label>
-                  <input
-                    className={`h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
-                      errores.fecha ? 'border-error' : 'border-outline-variant'
-                    }`}
-                    type="date"
-                    value={fecha}
-                    onChange={(e) => setFecha(e.target.value)}
-                  />
+            <EncabezadoSeccion icon={UserRound} titulo="Datos del Usuario" />
+            <div className="grid grid-cols-12 gap-column-gap gap-y-stack-md p-5">
+              <div className="col-span-12 flex flex-col gap-1.5 md:col-span-4">
+                <label className={LABEL}>Fecha de Devolución</label>
+                <input
+                  className={`${INPUT_BASE} ${errores.fecha ? 'border-error' : 'border-outline-variant'}`}
+                  type="date"
+                  value={fecha}
+                  onChange={(e) => setFecha(e.target.value)}
+                />
+              </div>
+              <div className="col-span-12 flex flex-col gap-1.5 md:col-span-8">
+                <label className={LABEL}>Responsable que Entrega</label>
+                <input
+                  className={`${INPUT_BASE} ${errores.responsable ? 'border-error' : 'border-outline-variant'}`}
+                  placeholder="Nombre completo"
+                  type="text"
+                  value={responsable}
+                  onChange={(e) => setResponsable(e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-12 flex flex-col gap-1.5 md:col-span-4">
+                <label className={LABEL}>Departamento</label>
+                <input
+                  type="text"
+                  value={departamento}
+                  onChange={(e) => setDepartamento(e.target.value)}
+                  placeholder="Área o departamento"
+                  className={`${INPUT_BASE} ${errores.departamento ? 'border-error' : 'border-outline-variant'}`}
+                />
+              </div>
+              <div className="col-span-12 flex flex-col gap-1.5 md:col-span-4">
+                <label className={LABEL}>Puesto</label>
+                <input
+                  className={`${INPUT_BASE} border-outline-variant`}
+                  placeholder="Cargo actual"
+                  type="text"
+                  value={puesto}
+                  onChange={(e) => setPuesto(e.target.value)}
+                />
+              </div>
+              {/* "Recibí de" es un valor fijo del sistema: se presenta como
+                  dato, no como campo. Antes era un <input readOnly> que
+                  parecía editable e invitaba a hacer clic. */}
+              <div className="col-span-12 flex flex-col gap-1.5 md:col-span-4">
+                <label className={LABEL}>Recibí de</label>
+                <div className="flex h-11 items-center gap-2 border-b border-outline-variant">
+                  <Lock className="h-4 w-4 shrink-0 text-on-surface-variant" strokeWidth={1.5} aria-hidden="true" />
+                  <span className="truncate font-body-md text-body-md text-on-surface">
+                    AGROINDUSTRIA LEGUMEX, S.A.
+                  </span>
                 </div>
-                <div className="flex flex-col gap-1.5 lg:col-span-2">
-                  <label className="font-label-bold text-label-bold text-on-surface">
-                    Responsable que Entrega
-                  </label>
-                  <input
-                    className={`h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
-                      errores.responsable ? 'border-error' : 'border-outline-variant'
-                    }`}
-                    placeholder="Nombre completo"
-                    type="text"
-                    value={responsable}
-                    onChange={(e) => setResponsable(e.target.value)}
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-bold text-label-bold text-on-surface">Departamento</label>
-                  <input
-                    type="text"
-                    value={departamento}
-                    onChange={(e) => setDepartamento(e.target.value)}
-                    placeholder="Área o departamento"
-                    className={`h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
-                      errores.departamento ? 'border-error' : 'border-outline-variant'
-                    }`}
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-bold text-label-bold text-on-surface">Puesto</label>
-                  <input
-                    className="h-11 w-full bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
-                    placeholder="Cargo actual"
-                    type="text"
-                    value={puesto}
-                    onChange={(e) => setPuesto(e.target.value)}
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-bold text-label-bold text-on-surface">
-                    Recibí de
-                  </label>
-                  <input
-                    className="h-11 w-full bg-surface-container-low text-on-surface-variant border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md cursor-not-allowed"
-                    value="AGROINDUSTRIA LEGUMEX, S.A."
-                    readOnly
-                    type="text"
-                  />
-                </div>
-                <div className="flex flex-col gap-2 lg:col-span-3 pt-2">
-                  <label className="font-label-bold text-label-bold text-on-surface">
-                    Planta / Ubicación
-                  </label>
-                  <div className="flex flex-wrap gap-6">
-                    {['Tejar', 'Parramos'].map((opt) => (
-                      <label key={opt} className="flex items-center gap-2.5 cursor-pointer group py-1">
-                        <input
-                          checked={planta === opt}
-                          onChange={() => setPlanta(opt)}
-                          className="h-4.5 w-4.5 accent-[#1a1a1a]"
-                          name="planta"
-                          type="radio"
-                        />
-                        <span className="font-body-md text-body-md text-on-surface group-hover:text-on-surface transition-colors">
-                          {opt}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
+                <p className="font-label-sm text-label-sm text-on-surface-variant">Valor fijo del sistema</p>
+              </div>
+
+              <div className="col-span-12 flex flex-col gap-2 pt-1">
+                <label className={LABEL}>Planta / Ubicación</label>
+                <div className="flex flex-wrap gap-2">
+                  {['Tejar', 'Parramos'].map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setPlanta(opt)}
+                      aria-pressed={planta === opt}
+                      className={`inline-flex h-11 items-center gap-2 rounded-lg border px-4 font-label-bold text-label-bold transition-colors ${
+                        planta === opt
+                          ? 'border-primary bg-primary text-on-primary'
+                          : 'border-outline-variant bg-surface text-on-surface hover:border-outline'
+                      }`}
+                    >
+                      {planta === opt && <CheckCircle2 className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />}
+                      {opt}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Control de modalidad */}
-          <div className="flex items-center gap-3 px-1">
-            <span className="font-label-bold text-label-bold text-on-surface">Formato del acta:</span>
-            <div className="inline-flex rounded-lg border border-outline-variant bg-surface-container p-1">
-              {[
-                { valor: 'una', etiqueta: '1 página' },
-                { valor: 'dos', etiqueta: '2 páginas' },
-              ].map((opcion) => (
-                <button
-                  key={opcion.valor}
-                  type="button"
-                  onClick={() => setModalidadPaginas(opcion.valor)}
-                  aria-pressed={modalidadPaginas === opcion.valor}
-                  className={`rounded-md px-3.5 py-1.5 font-label-bold text-label-bold transition-colors ${
-                    modalidadPaginas === opcion.valor
-                      ? 'bg-primary text-on-primary shadow-sm'
-                      : 'text-on-surface-variant hover:text-on-surface'
-                  }`}
-                >
-                  {opcion.etiqueta}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Descripción de Equipo */}
+          {/* 3. Descripción de Equipo */}
           <div
             className={`transition-all duration-300 ease-in-out overflow-hidden ${
               modalidadPaginas === 'dos' ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
             }`}
           >
-          <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
-            <header className="flex items-center gap-2.5 border-b border-outline-variant bg-surface-container-low px-5 py-3.5">
-              <MonitorSmartphone className="h-4.5 w-4.5 text-primary" strokeWidth={2.25} aria-hidden="true" />
-              <h3 className="font-label-bold text-label-bold text-on-surface uppercase tracking-wider">
-                Descripción de Equipo
-              </h3>
-            </header>
-            <div className="p-5 border-b border-outline-variant">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-column-gap gap-y-stack-md">
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-bold text-label-bold text-on-surface">Tipo de Equipo</label>
-                  <div className="flex flex-col gap-1">
-                    {['Laptop', 'Escritorio'].map((opt) => (
-                      <label key={opt} className="flex items-center gap-2.5 cursor-pointer group py-1">
-                        <input
-                          checked={tipoEquipo === opt}
-                          onChange={() => setTipoEquipo(opt)}
-                          className="h-4.5 w-4.5 accent-[#1a1a1a]"
-                          name="tipo_equipo"
-                          type="radio"
-                        />
-                        <span className="font-body-md text-body-md text-on-surface">{opt}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-bold text-label-bold text-on-surface">Estado</label>
-                  <div className="flex flex-col gap-1">
-                    {['Nuevo', 'Usado'].map((opt) => (
-                      <label key={opt} className="flex items-center gap-2.5 cursor-pointer group py-1">
-                        <input
-                          checked={estadoEquipo === opt}
-                          onChange={() => setEstadoEquipo(opt)}
-                          className="h-4.5 w-4.5 accent-[#1a1a1a]"
-                          name="estado"
-                          type="radio"
-                        />
-                        <span className="font-body-md text-body-md text-on-surface">{opt}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-bold text-label-bold text-on-surface">Marca</label>
-                  <div className="flex flex-col gap-1">
-                    {['Original', 'CLON'].map((opt) => (
-                      <label key={opt} className="flex items-center gap-2.5 cursor-pointer group py-1">
-                        <input
-                          checked={marcaEquipo === opt}
-                          onChange={() => setMarcaEquipo(opt)}
-                          className="h-4.5 w-4.5 accent-[#1a1a1a]"
-                          name="marca"
-                          type="radio"
-                        />
-                        <span className="font-body-md text-body-md text-on-surface">{opt}</span>
-                      </label>
-                    ))}
-                    {marcaEquipo === 'CLON' && (
+            <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+              <EncabezadoSeccion icon={MonitorSmartphone} titulo="Descripción de Equipo" />
+
+              {/* Selectores de marca: botones negros en lugar de radios azules
+                  del navegador. Misma altura que los inputs. */}
+              <div className="grid grid-cols-12 gap-column-gap gap-y-stack-md border-b border-outline-variant p-5">
+                {[
+                  { label: 'Tipo de Equipo', opts: ['Laptop', 'Escritorio'], valor: tipoEquipo, set: setTipoEquipo },
+                  { label: 'Estado', opts: ['Nuevo', 'Usado'], valor: estadoEquipo, set: setEstadoEquipo },
+                  { label: 'Marca', opts: ['Original', 'CLON'], valor: marcaEquipo, set: setMarcaEquipo },
+                ].map((grupo) => (
+                  <div key={grupo.label} className="col-span-12 flex flex-col gap-2 md:col-span-4">
+                    <label className={LABEL}>{grupo.label}</label>
+                    <div className="flex gap-2">
+                      {grupo.opts.map((opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => grupo.set(opt)}
+                          aria-pressed={grupo.valor === opt}
+                          className={`h-11 flex-1 rounded-lg border font-label-bold text-label-bold transition-colors ${
+                            grupo.valor === opt
+                              ? 'border-primary bg-primary text-on-primary'
+                              : 'border-outline-variant bg-surface text-on-surface hover:border-outline'
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                    {grupo.label === 'Marca' && marcaEquipo === 'CLON' && (
                       <input
-                        className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary mt-1"
+                        className={`${INPUT_BASE} border-outline-variant`}
                         placeholder="Especifique la marca"
                         value={marcaEquipoDetalle}
                         onChange={(e) => setMarcaEquipoDetalle(e.target.value)}
@@ -544,84 +521,73 @@ function Devolucion() {
                       />
                     )}
                   </div>
-                </div>
+                ))}
               </div>
-            </div>
-            <div className="p-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-column-gap gap-y-stack-md">
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-bold text-label-bold text-on-surface">Modelo</label>
+
+              <div className="grid grid-cols-12 gap-column-gap gap-y-stack-md p-5">
+                <div className="col-span-12 flex flex-col gap-1.5 md:col-span-4">
+                  <label className={LABEL}>Modelo</label>
                   <input
-                    className="h-11 w-full bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
+                    className={`${INPUT_BASE} border-outline-variant`}
                     placeholder="Ej. Latitude 5420"
                     type="text"
                     value={modeloEquipo}
                     onChange={(e) => setModeloEquipo(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-bold text-label-bold text-on-surface">
-                    Número de Serie (S/N)
-                  </label>
+                <div className="col-span-12 flex flex-col gap-1.5 md:col-span-4">
+                  <label className={LABEL}>Número de Serie (S/N)</label>
                   <input
-                    className={`h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface font-mono uppercase transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
-                      errores.equipo ? 'border-error' : 'border-outline-variant'
-                    }`}
+                    className={`${INPUT_BASE} font-mono uppercase ${errores.equipo ? 'border-error' : 'border-outline-variant'}`}
                     placeholder="ALFANUMERICO"
                     type="text"
                     value={noSerie}
                     onChange={(e) => setNoSerie(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-bold text-label-bold text-on-surface">
-                    Nombre del Equipo
-                  </label>
+                <div className="col-span-12 flex flex-col gap-1.5 md:col-span-4">
+                  <label className={LABEL}>Nombre del Equipo</label>
                   <input
-                    className={`h-11 w-full bg-surface border rounded-lg px-3.5 font-body-md text-body-md text-on-surface font-mono transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
-                      errores.equipo ? 'border-error' : 'border-outline-variant'
-                    }`}
+                    className={`${INPUT_BASE} font-mono ${errores.equipo ? 'border-error' : 'border-outline-variant'}`}
                     placeholder="LGMX-NB-001"
                     type="text"
                     value={nombreEquipo}
                     onChange={(e) => setNombreEquipo(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-bold text-label-bold text-on-surface">Procesador</label>
+                <div className="col-span-12 flex flex-col gap-1.5 md:col-span-4">
+                  <label className={LABEL}>Procesador</label>
                   <input
-                    className="h-11 w-full bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
+                    className={`${INPUT_BASE} border-outline-variant`}
                     placeholder="Ej. Intel Core i5 11th Gen"
                     type="text"
                     value={procesador}
                     onChange={(e) => setProcesador(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-bold text-label-bold text-on-surface">Memoria RAM</label>
+                <div className="col-span-12 flex flex-col gap-1.5 md:col-span-4">
+                  <label className={LABEL}>Memoria RAM</label>
                   <input
-                    className="h-11 w-full bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
+                    className={`${INPUT_BASE} border-outline-variant`}
                     placeholder="Ej. 4 GB, 8 GB, 16 GB..."
                     type="text"
                     value={memoriaRam}
                     onChange={(e) => setMemoriaRam(e.target.value)}
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-bold text-label-bold text-on-surface">
-                    Almacenamiento (Disco)
-                  </label>
+                <div className="col-span-12 flex flex-col gap-1.5 md:col-span-4">
+                  <label className={LABEL}>Almacenamiento (Disco)</label>
                   <div className="flex gap-2">
                     <select
                       value={discoTipo}
                       onChange={(e) => setDiscoTipo(e.target.value)}
-                      className="h-11 w-1/3 bg-surface border border-outline-variant rounded-lg px-2.5 font-body-md text-body-md text-on-surface transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
+                      className="h-11 w-24 shrink-0 rounded-lg border border-outline-variant bg-surface px-2.5 font-label-bold text-label-bold text-on-surface transition-colors hover:border-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
                     >
                       <option value="ssd">SSD</option>
                       <option value="hdd">HDD</option>
                     </select>
                     <input
-                      className="h-11 w-2/3 bg-surface border border-outline-variant rounded-lg px-3.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
+                      className={`${INPUT_BASE} border-outline-variant`}
                       placeholder="Capacidad (Ej. 512GB)"
                       type="text"
                       value={discoCapacidad}
@@ -630,182 +596,208 @@ function Devolucion() {
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
           </div>
 
-          {/* Accesorios */}
+          {/* 4. Accesorios */}
           <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
-            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant bg-surface-container-low px-5 py-3.5">
-              <div className="flex items-center gap-2.5">
-                {modalidadPaginas === 'una' ? (
-                  <MonitorSmartphone className="h-4.5 w-4.5 text-primary" strokeWidth={2.25} aria-hidden="true" />
-                ) : (
-                  <Mouse className="h-4.5 w-4.5 text-primary" strokeWidth={2.25} aria-hidden="true" />
-                )}
-                <h3 className="font-label-bold text-label-bold text-on-surface uppercase tracking-wider">
-                  {modalidadPaginas === 'una' ? 'Descripción de Equipo' : 'Accesorios Devueltos'}
-                </h3>
-              </div>
+            <EncabezadoSeccion
+              icon={modalidadPaginas === 'una' ? MonitorSmartphone : Mouse}
+              titulo={modalidadPaginas === 'una' ? 'Descripción de Equipo' : 'Accesorios Devueltos'}
+            >
               <div className="flex items-center gap-2">
+                {filasAccesorios.length > 0 && (
+                  <>
+                    <span className="rounded-full border border-outline-variant px-2 py-0.5 font-mono text-label-sm text-on-surface-variant tabular-nums">
+                      {filasAccesorios.length}
+                    </span>
+                    <button
+                      onClick={vaciarTablaAccesorios}
+                      type="button"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-outline-variant bg-surface px-3 py-1.5 font-label-bold text-label-bold text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container active:brightness-95"
+                    >
+                      <ListX className="h-4 w-4" strokeWidth={1.5} />
+                      Vaciar tabla
+                    </button>
+                  </>
+                )}
                 <button
                   onClick={agregarFilaManual}
                   type="button"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-outline-variant bg-surface px-3 py-1.5 font-label-bold text-label-bold text-on-surface transition-colors hover:bg-surface-container-high active:brightness-95"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 font-label-bold text-label-bold text-on-primary transition-all hover:brightness-110 active:brightness-95"
                 >
-                  <PlusCircle className="h-3.5 w-3.5" strokeWidth={2.5} />
-                  Agregar Fila
+                  <PlusCircle className="h-4 w-4" strokeWidth={1.5} />
+                  Agregar fila
                 </button>
-                {filasAccesorios.length > 0 && (
-                  <button
-                    onClick={vaciarTablaAccesorios}
-                    type="button"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-outline-variant bg-surface px-3 py-1.5 font-label-bold text-label-bold text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container active:brightness-95"
-                  >
-                    <ListX className="h-3.5 w-3.5" strokeWidth={2.5} />
-                    Vaciar tabla
-                  </button>
-                )}
               </div>
-            </header>
-            <div className="p-5 border-b border-outline-variant">
-              <p className="mb-3 font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">
+            </EncabezadoSeccion>
+
+            <div className="border-b border-outline-variant p-5">
+              <p className="mb-3 font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">
                 Verificación Rápida
               </p>
-              <div className="flex flex-wrap gap-x-5 gap-y-2.5">
-                {ACCESORIOS.map((label) => (
-                  <label key={label} className="flex items-center gap-2 cursor-pointer group text-sm">
-                    <input
-                      checked={accesoriosSeleccionados.includes(label)}
-                      onChange={() => toggleAccesorio(label)}
-                      className="h-4.5 w-4.5 rounded accent-[#1a1a1a]"
-                      type="checkbox"
-                    />
-                    <span className="font-body-md text-body-md text-on-surface transition-colors">
+              {/* Chips negros en lugar de checkboxes azules del navegador. */}
+              <div className="flex flex-wrap gap-2">
+                {ACCESORIOS.map((label) => {
+                  const activo = accesoriosSeleccionados.includes(label)
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => toggleAccesorio(label)}
+                      aria-pressed={activo}
+                      title={activo ? `Agregar otra unidad de ${label}` : `Agregar ${label}`}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-label-bold text-label-bold transition-colors ${
+                        activo
+                          ? 'border-primary bg-primary text-on-primary'
+                          : 'border-outline-variant bg-surface text-on-surface hover:border-outline'
+                      }`}
+                    >
+                      {activo && <CheckCircle2 className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />}
                       {label}
-                    </span>
-                  </label>
-                ))}
+                    </button>
+                  )
+                })}
               </div>
             </div>
-            <div className="w-full overflow-x-auto">
-              <table className="w-full min-w-[640px] text-left border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-outline-variant text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-                    <th className="py-2.5 pl-5 pr-3 font-bold w-12">
-                      No.
-                    </th>
-                    <th className="py-2.5 pr-3 font-bold">
-                      Artículo
-                    </th>
-                    <th className="py-2.5 pr-3 font-bold">
-                      Marca
-                    </th>
-                    <th className="py-2.5 pr-3 font-bold">
-                      Modelo
-                    </th>
-                    <th className="py-2.5 pr-3 font-bold">
-                      No. Serie
-                    </th>
-                    <th className="py-2.5 pr-3 font-bold w-32">
-                      Estado
-                    </th>
-                    <th className="py-2.5 pr-5 w-12" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {filasAccesorios.length === 0 && (
-                    <tr>
-                      <td colSpan={7} className="py-8 px-4 text-center text-on-surface-variant font-body-md text-body-md">
-                        Marca un accesorio arriba o usa "Agregar Fila" para empezar.
-                      </td>
+
+            {filasAccesorios.length === 0 ? (
+              /* Estado vacío con ícono, explicación y acción -- antes era solo
+                 una frase centrada sin salida. */
+              <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
+                <PackageOpen className="h-6 w-6 text-outline" strokeWidth={1.5} aria-hidden="true" />
+                <div>
+                  <p className="font-label-bold text-label-bold text-on-surface">
+                    Todavía no hay accesorios en el acta
+                  </p>
+                  <p className="mt-1 font-body-md text-body-md text-on-surface-variant">
+                    Marca uno arriba para agregarlo con su tipo, o crea una fila en blanco.
+                  </p>
+                </div>
+                <button
+                  onClick={agregarFilaManual}
+                  type="button"
+                  className="inline-flex h-11 items-center gap-2 rounded-lg border border-outline-variant bg-surface px-4 font-label-bold text-label-bold text-on-surface transition-colors hover:bg-surface-container-high"
+                >
+                  <PlusCircle className="h-4 w-4" strokeWidth={1.5} />
+                  Agregar fila en blanco
+                </button>
+              </div>
+            ) : (
+              <div className="w-full overflow-x-auto">
+                <table className="w-full min-w-[640px] border-collapse text-left">
+                  <thead>
+                    <tr className="border-b border-outline-variant bg-surface-container-low text-left font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">
+                      <th className="w-14 py-2.5 pl-5 pr-3 text-right font-bold">No.</th>
+                      <th className="py-2.5 pr-3 font-bold">Artículo</th>
+                      <th className="py-2.5 pr-3 font-bold">Marca</th>
+                      <th className="py-2.5 pr-3 font-bold">Modelo</th>
+                      <th className="py-2.5 pr-3 font-bold">No. Serie</th>
+                      <th className="w-32 py-2.5 pr-3 font-bold">Estado</th>
+                      <th className="w-12 py-2.5 pr-5" />
                     </tr>
-                  )}
-                  {filasAccesorios.map((fila, index) => (
-                    <tr
-                      key={fila.id}
-                      className="border-b border-outline-variant last:border-0 hover:bg-surface-container-low transition-colors group"
-                    >
-                      <td className="py-2 pl-5 pr-3 font-body-md text-body-md text-on-surface-variant">
-                        {index + 1}
-                      </td>
-                      <td className="py-2 pr-3">
-                        <input
-                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-primary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
-                          placeholder={fila.accesorioId === 'Otro' ? 'Especifique el artículo...' : 'Especificar...'}
-                          type="text"
-                          value={fila.articulo}
-                          onChange={(e) => actualizarFilaAccesorio(fila.id, 'articulo', e.target.value)}
-                          readOnly={fila.origen === 'checkbox' && fila.accesorioId !== 'Otro'}
-                        />
-                      </td>
-                      <td className="py-2 pr-3">
-                        <input
-                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-primary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
-                          placeholder="..."
-                          type="text"
-                          value={fila.marca}
-                          onChange={(e) => actualizarFilaAccesorio(fila.id, 'marca', e.target.value)}
-                        />
-                      </td>
-                      <td className="py-2 pr-3">
-                        <input
-                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-primary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
-                          placeholder="..."
-                          type="text"
-                          value={fila.modelo}
-                          onChange={(e) => actualizarFilaAccesorio(fila.id, 'modelo', e.target.value)}
-                        />
-                      </td>
-                      <td className="py-2 pr-3">
-                        <input
-                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-primary focus:ring-0 px-1 py-1 font-body-md text-body-md font-mono transition-colors"
-                          placeholder="..."
-                          type="text"
-                          value={fila.serie}
-                          onChange={(e) => actualizarFilaAccesorio(fila.id, 'serie', e.target.value)}
-                        />
-                      </td>
-                      <td className="py-2 pr-3">
-                        <select
-                          value={fila.estado}
-                          onChange={(e) => actualizarFilaAccesorio(fila.id, 'estado', e.target.value)}
-                          className="w-full bg-transparent border-0 border-b border-transparent focus:border-primary focus:ring-0 px-1 py-1 font-body-md text-body-md transition-colors"
-                        >
-                          <option>Nuevo</option>
-                          <option>Usado</option>
-                        </select>
-                      </td>
-                      <td className="py-2 pr-5">
-                        <button
-                          type="button"
-                          onClick={() => eliminarFilaAccesorio(fila.id)}
-                          aria-label={`Quitar fila ${index + 1}`}
-                          className="grid h-8 w-8 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container"
-                        >
-                          <X className="h-4 w-4" strokeWidth={2.25} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filasAccesorios.map((fila, index) => (
+                      <tr
+                        key={fila.id}
+                        className="group border-b border-outline-variant transition-colors last:border-0 hover:bg-surface-container-low"
+                      >
+                        {/* Numeración tabular 01, 02... para que la columna no
+                            baile al pasar de 9 a 10 filas. */}
+                        <td className="py-2 pl-5 pr-3 text-right font-mono text-body-md tabular-nums text-on-surface-variant">
+                          {String(index + 1).padStart(2, '0')}
+                        </td>
+                        <td className="py-2 pr-3">
+                          <input
+                            className="w-full border-0 border-b border-transparent bg-transparent px-1 py-1 font-body-md text-body-md transition-colors focus:border-primary focus:ring-0"
+                            placeholder={fila.accesorioId === 'Otro' ? 'Especifique el artículo...' : 'Especificar...'}
+                            type="text"
+                            value={fila.articulo}
+                            onChange={(e) => actualizarFilaAccesorio(fila.id, 'articulo', e.target.value)}
+                            readOnly={fila.origen === 'checkbox' && fila.accesorioId !== 'Otro'}
+                          />
+                        </td>
+                        <td className="py-2 pr-3">
+                          <input
+                            className="w-full border-0 border-b border-transparent bg-transparent px-1 py-1 font-body-md text-body-md transition-colors focus:border-primary focus:ring-0"
+                            placeholder="Ej. Dell"
+                            type="text"
+                            value={fila.marca}
+                            onChange={(e) => actualizarFilaAccesorio(fila.id, 'marca', e.target.value)}
+                          />
+                        </td>
+                        <td className="py-2 pr-3">
+                          <input
+                            className="w-full border-0 border-b border-transparent bg-transparent px-1 py-1 font-body-md text-body-md transition-colors focus:border-primary focus:ring-0"
+                            placeholder="Ej. P2422H"
+                            type="text"
+                            value={fila.modelo}
+                            onChange={(e) => actualizarFilaAccesorio(fila.id, 'modelo', e.target.value)}
+                          />
+                        </td>
+                        <td className="py-2 pr-3">
+                          <input
+                            className="w-full border-0 border-b border-transparent bg-transparent px-1 py-1 font-mono text-body-md uppercase transition-colors focus:border-primary focus:ring-0"
+                            placeholder="CN0F9K2H74"
+                            type="text"
+                            value={fila.serie}
+                            onChange={(e) => actualizarFilaAccesorio(fila.id, 'serie', e.target.value)}
+                          />
+                        </td>
+                        <td className="py-2 pr-3">
+                          <select
+                            value={fila.estado}
+                            onChange={(e) => actualizarFilaAccesorio(fila.id, 'estado', e.target.value)}
+                            className="w-full border-0 border-b border-transparent bg-transparent px-1 py-1 font-body-md text-body-md transition-colors focus:border-primary focus:ring-0"
+                          >
+                            <option>Nuevo</option>
+                            <option>Usado</option>
+                          </select>
+                        </td>
+                        <td className="py-2 pr-5">
+                          <button
+                            type="button"
+                            onClick={() => eliminarFilaAccesorio(fila.id)}
+                            aria-label={`Quitar fila ${index + 1}`}
+                            className="grid h-9 w-9 place-items-center rounded-lg text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container"
+                          >
+                            <X className="h-4 w-4" strokeWidth={1.5} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
 
-          {/* Constancia de Entrega & Observaciones */}
+          {/* 5. Observaciones Generales -- ahora con su propio encabezado de
+              sección, como el resto. Antes era un campo suelto encima de las
+              firmas, sin título de sección. */}
           <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
-            <div className="p-5 border-b border-outline-variant">
-              <label className="font-label-bold text-label-bold text-on-surface block mb-2">
-                Observaciones Generales
-              </label>
+            <EncabezadoSeccion icon={MessageSquareText} titulo="Observaciones Generales">
+              <span className="font-label-sm text-label-sm text-on-surface-variant tabular-nums">
+                Opcional · {observaciones.length}/500
+              </span>
+            </EncabezadoSeccion>
+            <div className="p-5">
               <textarea
-                className="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary min-h-[100px] resize-y"
+                value={observaciones}
+                maxLength={500}
+                onChange={(e) => setObservaciones(e.target.value)}
+                className="min-h-[96px] w-full resize-y rounded-lg border border-outline-variant bg-surface px-3.5 py-2.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70 transition-colors hover:border-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
                 placeholder="Anote cualquier daño estético, fallas reportadas no resueltas, o información relevante sobre el equipo devuelto..."
               ></textarea>
             </div>
+          </section>
+
+          {/* 6. Constancia y firmas */}
+          <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+            <EncabezadoSeccion icon={FileSignature} titulo="Constancia y Firmas" />
             <div className="p-5 md:p-6">
-              <p className="font-body-md text-body-md text-on-surface leading-relaxed mb-6 md:mb-8">
+              <p className="mb-6 border-l-2 border-outline-variant pl-4 font-body-md text-body-md leading-relaxed text-on-surface md:mb-8">
                 Por este medio se hace constar que el día{' '}
                 <InlineEditableText
                   value={diaEntrega}
@@ -846,54 +838,69 @@ function Devolucion() {
                   title="Clic para escribir su nombre"
                 />
               </p>
-              {/* En móvil, el grid pasa a 1 columna sin padding lateral extra
-                  para que cada firma aproveche todo el ancho disponible en
-                  vez de dejar un recuadro angosto con espacio muerto a los
-                  costados. */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
                 <FirmaPad
                   titulo="Nombre y Firma de quien Entrega"
-                  subtitulo="(Usuario Final)"
+                  subtitulo="Usuario final"
                   firmaUrl={firmaEntrega}
                   onConfirmar={setFirmaEntrega}
                   onReiniciar={() => setFirmaEntrega(null)}
                 />
                 <FirmaPad
                   titulo="Nombre y Firma de quien Recibe"
-                  subtitulo="(Soporte TI)"
+                  subtitulo="Soporte TI"
                   firmaUrl={firmaRecibe}
                   onConfirmar={setFirmaRecibe}
                   onReiniciar={() => setFirmaRecibe(null)}
                 />
               </div>
               {(errores.firmaEntrega || errores.firmaRecibe) && (
-                <p className="text-error font-label-sm text-label-sm mt-3 text-center">
+                <p className="mt-3 text-center font-label-sm text-label-sm text-error">
                   Ambas firmas deben quedar confirmadas para finalizar la devolución.
                 </p>
               )}
             </div>
           </section>
 
-          {estadoActa === 'finalizado' && (
-            <div className="flex items-center justify-between bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 font-label-bold text-label-bold">
-              <span className="flex items-center gap-2">
-                <Lock className="h-4 w-4" strokeWidth={2.25} />
-                Acta finalizada
-              </span>
-            </div>
-          )}
           {errores.equipo && (
-            <p className="text-error font-label-sm text-label-sm px-1">
+            <p className="px-1 font-label-sm text-label-sm text-error">
               Indica el No. de Serie o el Nombre del Equipo para finalizar.
             </p>
           )}
           {saveStatus === 'error' && errorGuardado && (
-            <p className="text-error font-label-sm text-label-sm px-1">
-              {errorGuardado}
-            </p>
+            <p className="px-1 font-label-sm text-label-sm text-error">{errorGuardado}</p>
           )}
+        </div>
+      </div>
 
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-outline-variant">
+      {/* 7. Barra de acciones fija. Siempre visible y siempre dice en qué
+          estado está el acta y qué le falta -- antes los botones vivían al
+          final del scroll y los requisitos solo aparecían al fallar. */}
+      <div className="sticky bottom-0 z-30 border-t border-outline-variant bg-surface-container-lowest px-4 py-3 shadow-[0_-1px_2px_rgba(26,26,26,0.05)] md:px-8">
+        <div className="mx-auto flex max-w-[896px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="inline-flex items-center gap-2 rounded-full border border-outline-variant px-2.5 py-1 font-label-bold text-label-bold text-on-surface">
+              {estadoActa === 'finalizado' ? (
+                <>
+                  <Lock className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
+                  Acta finalizada
+                </>
+              ) : (
+                <>
+                  <span className="h-1.5 w-1.5 rounded-full bg-outline" aria-hidden="true" />
+                  Borrador
+                </>
+              )}
+            </span>
+            <span className="font-label-sm text-label-sm text-on-surface-variant">
+              {estadoActa === 'finalizado'
+                ? 'Guardada en el servidor'
+                : pendientes.length > 0
+                ? `Faltan: ${pendientes.join(' · ')}`
+                : 'Lista para finalizar'}
+            </span>
+          </div>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
             <button
               type="button"
               onClick={handleCancelar}
@@ -907,9 +914,9 @@ function Devolucion() {
               className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 font-label-bold text-label-bold text-on-primary shadow-sm transition-all hover:brightness-110 active:brightness-95 disabled:opacity-60"
             >
               {saveStatus === 'saving' ? (
-                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} aria-hidden="true" />
+                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} aria-hidden="true" />
               ) : (
-                <CheckCircle2 className="h-4 w-4" strokeWidth={2.25} aria-hidden="true" />
+                <CheckCircle2 className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
               )}
               {saveStatus === 'saving'
                 ? 'Guardando...'

@@ -27,6 +27,22 @@ function notaHistoricaAPng() {
   return canvas.toDataURL('image/png')
 }
 
+// Encabezado del bloque de firma.
+// CAMBIO DE DISEÑO: el título va ARRIBA del recuadro (antes iba debajo).
+// Un rótulo que aparece después del control obliga a leer hacia atrás para
+// saber qué se está firmando; arriba funciona como etiqueta del campo, igual
+// que el resto del formulario.
+function EncabezadoFirma({ titulo, subtitulo }) {
+  return (
+    <div className="mb-2.5 flex items-baseline justify-between gap-3">
+      <p className="font-label-bold text-label-bold text-on-surface">{titulo}</p>
+      {subtitulo && (
+        <p className="shrink-0 font-label-sm text-label-sm text-on-surface-variant">{subtitulo}</p>
+      )}
+    </div>
+  )
+}
+
 // Captura una firma de tres formas (dibujada como vector, subida como
 // imagen, o marcada como registro histórico/firmado en papel), muestra una
 // vista previa, y solo la entrega al padre cuando el usuario pulsa
@@ -84,6 +100,7 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
   if (firmaUrl) {
     return (
       <div className="flex flex-col rounded-xl border border-outline-variant bg-surface-container-lowest p-3">
+        <EncabezadoFirma titulo={titulo} subtitulo={subtitulo} />
         <div className="grid aspect-[5/2] w-full place-items-center rounded-lg border border-outline-variant bg-surface-container-low p-2">
           <img src={firmaUrl} alt={`Firma de ${titulo}`} className="max-h-full max-w-full object-contain" />
         </div>
@@ -100,18 +117,14 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
             Reiniciar firma
           </button>
         </div>
-        <div className="mt-3 border-t border-outline-variant pt-2.5 text-center">
-          <p className="font-label-bold text-label-bold text-on-surface uppercase tracking-wide">{titulo}</p>
-          {subtitulo && (
-            <p className="font-label-sm text-label-sm text-on-surface-variant">{subtitulo}</p>
-          )}
-        </div>
       </div>
     )
   }
 
   return (
     <div className="flex flex-col rounded-xl border border-outline-variant bg-surface-container-lowest p-3">
+      <EncabezadoFirma titulo={titulo} subtitulo={subtitulo} />
+
       <div className="flex justify-center gap-1 mb-3 flex-wrap rounded-lg bg-surface-container p-1">
         <button
           type="button"
@@ -155,9 +168,6 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
       {modo === 'dibujar' && (
         // touch-action: none evita que un trazo con el dedo se interprete
         // como scroll de la página en móvil (Fase 1.1).
-        // aspect-[5/2]: mismo aspecto que el diseño de referencia -- en
-        // móvil aprovecha mejor el ancho disponible en vez de dejar un
-        // cuadro alto y en su mayoría vacío.
         <div
           className="grid aspect-[5/2] w-full place-items-center overflow-hidden rounded-lg border border-dashed border-outline bg-surface"
           style={{ touchAction: 'none' }}
@@ -218,10 +228,6 @@ function FirmaPad({ titulo, subtitulo, firmaUrl, onConfirmar, onReiniciar }) {
         >
           Confirmar firma
         </button>
-      </div>
-      <div className="mt-3 border-t border-outline-variant pt-2.5 text-center">
-        <p className="font-label-bold text-label-bold text-on-surface uppercase tracking-wide">{titulo}</p>
-        {subtitulo && <p className="font-label-sm text-label-sm text-on-surface-variant">{subtitulo}</p>}
       </div>
     </div>
   )
